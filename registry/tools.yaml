@@ -1,0 +1,12 @@
+# External Tool Skills — Third-party CLI tools usable from this agent
+#
+# Each entry defines a standalone external tool skill with:
+#   - name: unique id (used as directory name: skills/{name}/)
+#   - description: compact one-liner shown in the skills index (under 130 chars)
+#
+# The SKILL.md file must already exist at skills/{name}/SKILL.md.
+# This registry only controls index inclusion — it does NOT generate the SKILL.md.
+
+tools:
+  - name: notebooklm
+    description: "Google NotebookLM: Create notebooks, add sources, run analysis, and generate audio overviews, mind maps, flashcards, and infographics."

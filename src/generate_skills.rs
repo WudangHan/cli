@@ -25,6 +25,7 @@ use std::path::Path;
 
 const PERSONAS_YAML: &str = include_str!("../registry/personas.yaml");
 const RECIPES_YAML: &str = include_str!("../registry/recipes.yaml");
+const TOOLS_YAML: &str = include_str!("../registry/tools.yaml");
 
 /// Methods blocked from skill generation.
 /// Format: (service_alias, resource, method).
@@ -57,6 +58,17 @@ struct PersonaEntry {
 #[derive(serde::Deserialize)]
 struct RecipeRegistry {
     recipes: Vec<RecipeEntry>,
+}
+
+#[derive(serde::Deserialize)]
+struct ToolRegistry {
+    tools: Vec<ToolEntry>,
+}
+
+#[derive(serde::Deserialize)]
+struct ToolEntry {
+    name: String,
+    description: String,
 }
 
 #[derive(serde::Deserialize)]
@@ -260,6 +272,30 @@ pub async fn handle_generate_skills(args: &[String]) -> Result<(), GwsError> {
         }
     }
 
+    // Register external tool skills (SKILL.md already exists; index-only)
+    if filter
+        .as_ref()
+        .is_none_or(|f| "tool".contains(f.as_str()) || "tools".contains(f.as_str()))
+    {
+        if let Ok(registry) = serde_yaml::from_str::<ToolRegistry>(TOOLS_YAML) {
+            for tool in registry.tools {
+                let emit = match &filter {
+                    Some(f) => tool.name.contains(f.as_str()),
+                    None => true,
+                };
+                if emit {
+                    index.push(SkillIndexEntry {
+                        name: tool.name,
+                        description: truncate_desc(&tool.description),
+                        category: "tool".to_string(),
+                    });
+                }
+            }
+        } else {
+            eprintln!("WARNING: Failed to parse tools.yaml");
+        }
+    }
+
     // Write skills index
     if filter.is_none() {
         write_skills_index(&index)?;
@@ -324,6 +360,11 @@ fn write_skills_index(entries: &[SkillIndexEntry]) -> Result<(), GwsError> {
             "recipe",
             "## Recipes",
             "Multi-step task sequences with real commands.",
+        ),
+        (
+            "tool",
+            "## Tools",
+            "External CLI tools available to this agent.",
         ),
     ];
 

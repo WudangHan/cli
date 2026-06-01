@@ -144,10 +144,10 @@ All `generate` commands are async by default (returns a `task_id` immediately). 
 notebooklm generate audio [-n <notebook_id>] [--wait]
 notebooklm generate audio "focus on practical applications" [-n <notebook_id>] [--wait]
 
-# Style variants
-notebooklm generate audio --style brief    # short overview
-notebooklm generate audio --style critique # critical analysis
-notebooklm generate audio --style debate   # debate format
+# Format variants
+notebooklm generate audio --format brief    # short overview
+notebooklm generate audio --format critique # critical analysis
+notebooklm generate audio --format debate   # debate format
 
 # Download as MP3
 notebooklm download audio ./overview.mp3 [-n <notebook_id>]
@@ -157,10 +157,10 @@ notebooklm download audio ./overview.mp3 [-n <notebook_id>]
 
 ```bash
 # Generate hierarchical mind map
-notebooklm generate mindmap [-n <notebook_id>] [--wait]
+notebooklm generate mind-map [-n <notebook_id>] [--wait]
 
 # Download as JSON
-notebooklm download mindmap ./mindmap.json [-n <notebook_id>]
+notebooklm download mind-map ./mindmap.json [-n <notebook_id>]
 ```
 
 Mind map JSON structure:
@@ -239,7 +239,7 @@ notebooklm source add "https://youtube.com/watch?v=..." -n "$NB" --wait
 
 # Launch all generation tasks in parallel (non-blocking)
 AUDIO_TASK=$(notebooklm generate audio -n "$NB" --json | jq -r '.task_id')
-MAP_TASK=$(notebooklm generate mindmap -n "$NB" --json | jq -r '.task_id')
+MAP_TASK=$(notebooklm generate mind-map -n "$NB" --json | jq -r '.task_id')
 QUIZ_TASK=$(notebooklm generate quiz -n "$NB" --json | jq -r '.task_id')
 INFO_TASK=$(notebooklm generate infographic -n "$NB" --json | jq -r '.task_id')
 
@@ -252,7 +252,7 @@ notebooklm artifact wait "$INFO_TASK"
 # Download
 mkdir -p ./output
 notebooklm download audio       ./output/overview.mp3       -n "$NB"
-notebooklm download mindmap     ./output/mindmap.json        -n "$NB"
+notebooklm download mind-map    ./output/mindmap.json        -n "$NB"
 notebooklm download quiz --format markdown ./output/flashcards.md -n "$NB"
 notebooklm download infographic ./output/infographic.png     -n "$NB"
 ```
@@ -260,10 +260,10 @@ notebooklm download infographic ./output/infographic.png     -n "$NB"
 ### Document Q&A
 
 ```bash
-notebooklm create "Document Analysis" | notebooklm use -
-notebooklm source add "./contract.pdf" --wait
-notebooklm ask "What are the key obligations for each party?" --json | jq '.answer'
-notebooklm ask "List any termination clauses."
+NB=$(notebooklm create "Document Analysis" --json | jq -r '.notebook.id')
+notebooklm source add "./contract.pdf" -n "$NB" --wait
+notebooklm ask "What are the key obligations for each party?" -n "$NB" --json | jq '.answer'
+notebooklm ask "List any termination clauses." -n "$NB"
 ```
 
 ---
