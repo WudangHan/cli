@@ -8,6 +8,7 @@ Core Google Workspace API skills.
 
 | Skill | Description |
 |-------|-------------|
+| [notebooklm](../skills/notebooklm/SKILL.md) | Google NotebookLM: Create notebooks, add sources, run analysis, and generate audio overviews, mind maps, flashcards, and infographics. |
 | [gws-shared](../skills/gws-shared/SKILL.md) | gws CLI: Shared patterns for authentication, global flags, and output formatting. |
 | [gws-drive](../skills/gws-drive/SKILL.md) | Google Drive: Manage files, folders, and shared drives. |
 | [gws-sheets](../skills/gws-sheets/SKILL.md) | Google Sheets: Read and write spreadsheets. |
