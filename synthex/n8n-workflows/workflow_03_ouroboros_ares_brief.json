@@ -1,0 +1,98 @@
+{
+  "name": "SYNTHEX 03 · OUROBOROS → Brief quotidien",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }]
+        }
+      },
+      "id": "node-cron",
+      "name": "OUROBOROS · Cron 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 320]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  (SELECT COALESCE(SUM(mrr_cad),0) FROM mrr_log WHERE month = date_trunc('month', NOW())) AS mrr,\n  (SELECT COUNT(*) FROM leads WHERE created_at > NOW() - INTERVAL '1 day') AS leads_24h,\n  (SELECT COUNT(*) FROM transactions WHERE created_at > NOW() - INTERVAL '1 day') AS tx_24h,\n  (SELECT COALESCE(SUM(amount_cad),0) FROM transactions WHERE created_at > NOW() - INTERVAL '1 day') AS revenue_24h;",
+        "options": {}
+      },
+      "id": "node-metrics",
+      "name": "MINERVA · Métriques 24h",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [500, 320],
+      "credentials": {
+        "postgres": { "id": "postgres", "name": "SYNTHEX Postgres" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-opus-4-8\",\n  \"max_tokens\": 700,\n  \"system\": \"Tu es OUROBOROS, agent d'orchestration SYNTHEX. Rédige un brief quotidien concis (FR), 5 lignes max, ton exécutif, pour le Président.\",\n  \"messages\": [\n    { \"role\": \"user\", \"content\": \"Métriques 24h — MRR: {{ $json.mrr }} CAD, leads: {{ $json.leads_24h }}, transactions: {{ $json.tx_24h }}, revenu jour: {{ $json.revenue_24h }} CAD. Rédige le brief.\" }\n  ]\n}",
+        "options": {}
+      },
+      "id": "node-claude",
+      "name": "Claude · Rédaction brief",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 320],
+      "credentials": {
+        "httpHeaderAuth": { "id": "anthropic", "name": "Anthropic API Key" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const brief = $json.content?.[0]?.text || 'Brief indisponible.';\nreturn [{ json: { brief } }];"
+      },
+      "id": "node-extract",
+      "name": "Extraire texte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sendgrid.com/v3/mail/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"personalizations\": [{ \"to\": [{ \"email\": \"president@synthex.ai\" }] }],\n  \"from\": { \"email\": \"ares@synthex.ai\", \"name\": \"OUROBOROS · Brief\" },\n  \"subject\": \"☀ Brief quotidien SYNTHEX\",\n  \"content\": [{ \"type\": \"text/plain\", \"value\": \"{{ $json.brief }}\" }]\n}",
+        "options": {}
+      },
+      "id": "node-email",
+      "name": "Email · Brief Président",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1280, 320],
+      "credentials": {
+        "httpHeaderAuth": { "id": "sendgrid", "name": "SendGrid API Key" }
+      }
+    }
+  ],
+  "connections": {
+    "OUROBOROS · Cron 06:00": { "main": [[{ "node": "MINERVA · Métriques 24h", "type": "main", "index": 0 }]] },
+    "MINERVA · Métriques 24h": { "main": [[{ "node": "Claude · Rédaction brief", "type": "main", "index": 0 }]] },
+    "Claude · Rédaction brief": { "main": [[{ "node": "Extraire texte", "type": "main", "index": 0 }]] },
+    "Extraire texte": { "main": [[{ "node": "Email · Brief Président", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "synthex" }]
+}

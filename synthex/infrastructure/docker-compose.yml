@@ -1,0 +1,157 @@
+# SYNTHEX Corporation Agentique — stack complète (11 services)
+# Lancer : docker compose --env-file .env up -d
+name: synthex
+
+x-restart: &restart
+  restart: unless-stopped
+
+networks:
+  synthex:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  n8ndata:
+  promdata:
+  grafanadata:
+
+services:
+  # 1 — Base de données (MINERVA)
+  postgres:
+    <<: *restart
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [synthex]
+
+  # 2 — Cache / files (Redis)
+  redis:
+    <<: *restart
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [synthex]
+
+  # 3 — Orchestration low-code (n8n)
+  n8n:
+    <<: *restart
+    image: n8nio/n8n:latest
+    environment:
+      N8N_HOST: n8n.synthex.ai
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: https://n8n.synthex.ai/
+      N8N_PORT: 5678
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      GENERIC_TIMEZONE: America/Toronto
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [synthex]
+
+  # 4 — Agents LangGraph (FastAPI)
+  langgraph-api:
+    <<: *restart
+    build: ./langgraph
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [synthex]
+
+  # 5 — API de métriques (FastAPI + asyncpg)
+  metrics-api:
+    <<: *restart
+    build: ./metrics-api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      METRICS_API_KEY: ${METRICS_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [synthex]
+
+  # 6 — Prometheus (ARGUS)
+  prometheus:
+    <<: *restart
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - promdata:/prometheus
+    networks: [synthex]
+
+  # 7 — Grafana
+  grafana:
+    <<: *restart
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_SERVER_ROOT_URL: https://grafana.synthex.ai
+    volumes:
+      - grafanadata:/var/lib/grafana
+    depends_on: [prometheus]
+    networks: [synthex]
+
+  # 8 — Tunnel Cloudflare (JANUS)
+  cloudflared:
+    <<: *restart
+    image: cloudflare/cloudflared:latest
+    command: ["tunnel", "--no-autoupdate", "run", "--token", "${CLOUDFLARE_TUNNEL_TOKEN}"]
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+    depends_on: [n8n, nginx, metrics-api, grafana]
+    networks: [synthex]
+
+  # 9 — Serveur de pages statiques (site SYNTHEX)
+  nginx:
+    <<: *restart
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../:/usr/share/nginx/html:ro
+    networks: [synthex]
+
+  # 10 — Exporter PostgreSQL
+  postgres-exporter:
+    <<: *restart
+    image: prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [synthex]
+
+  # 11 — Exporter Redis
+  redis-exporter:
+    <<: *restart
+    image: oliver006/redis_exporter:latest
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    depends_on: [redis]
+    networks: [synthex]

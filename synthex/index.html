@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SYNTHEX · Accueil</title>
+  <style>
+    :root{--bg:#0b0e14;--panel:#141a24;--line:#222c3a;--txt:#e6edf3;--mut:#8b98a9;--gold:#d4af37;--blue:#4f9dff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    .sgn-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:18px;padding:12px 24px;background:rgba(11,14,20,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+    .sgn-bar a{color:var(--mut);font-size:14px;font-weight:600;transition:color .15s}
+    .sgn-bar a:hover{color:var(--txt)}
+    .sgn-brand{color:var(--txt)!important;font-size:18px;letter-spacing:1px;margin-right:auto}
+    .sgn-gold{color:var(--gold)!important;border:1px solid var(--gold);border-radius:999px;padding:4px 14px}
+    .sgn-gold:hover{background:var(--gold);color:#0b0e14!important}
+    .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+    .hero{padding:90px 0 60px;text-align:center}
+    .hero h1{font-size:48px;margin:0 0 12px;letter-spacing:1px}
+    .hero p{color:var(--mut);font-size:20px;max-width:640px;margin:0 auto 28px}
+    .badge{display:inline-block;font-size:12px;letter-spacing:2px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:5px 14px;margin-bottom:24px}
+    .cta{display:inline-block;background:var(--blue);color:#04101f;font-weight:700;padding:13px 28px;border-radius:8px}
+    .cta:hover{filter:brightness(1.1)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin:50px 0}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
+    .card h3{margin:0 0 8px;font-size:18px}
+    .card p{color:var(--mut);margin:0;font-size:15px}
+    section{padding:40px 0;border-top:1px solid var(--line)}
+    h2{font-size:28px;margin:0 0 18px}
+    form{display:grid;gap:12px;max-width:520px}
+    input,textarea{background:#0d1118;border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:12px;font:inherit}
+    button{background:var(--gold);color:#0b0e14;font-weight:700;border:0;border-radius:8px;padding:13px;cursor:pointer}
+    footer{color:var(--mut);text-align:center;padding:40px 0;border-top:1px solid var(--line);font-size:14px}
+  </style>
+</head>
+<body>
+  <nav class="sgn-bar">
+    <a class="sgn-brand" href="index.html">&#9670; SYNTHEX</a>
+    <a href="index.html">Accueil</a>
+    <a href="services.html">Services</a>
+    <a href="agents.html">Agents</a>
+    <a href="ops.html">Op&eacute;rations</a>
+    <a class="sgn-gold" href="dashboard.html">&#9733; Dashboard Pr&eacute;sident</a>
+  </nav>
+
+  <div class="wrap">
+    <div class="hero">
+      <span class="badge">CORPORATION AGENTIQUE</span>
+      <h1>L'entreprise pilot&eacute;e par 12 agents</h1>
+      <p>SYNTHEX automatise l'acquisition, la qualification, la facturation et la conformit&eacute; via une architecture multi-agents sur 4 couches.</p>
+      <a class="cta" href="#contact">Demander une d&eacute;mo</a>
+    </div>
+
+    <div class="grid">
+      <div class="card"><h3>Acquisition autonome</h3><p>DIANA score chaque lead via Claude et ne pousse en CRM que les opportunit&eacute;s &agrave; fort potentiel.</p></div>
+      <div class="card"><h3>Conformit&eacute; par d&eacute;faut</h3><p>THEMIS journalise chaque action critique avec un hash SHA-256 inalt&eacute;rable.</p></div>
+      <div class="card"><h3>Garde-fou financier</h3><p>ARES applique un veto sur toute transaction sup&eacute;rieure &agrave; 1&nbsp;000&nbsp;CAD.</p></div>
+    </div>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <p style="color:var(--mut)">Laissez vos coordonn&eacute;es : le formulaire d&eacute;clenche le workflow Lead &rarr; DIANA &rarr; MERCURY.</p>
+      <form action="https://n8n.synthex.ai/webhook/lead-capture" method="post">
+        <input name="name" placeholder="Nom complet" required />
+        <input name="email" type="email" placeholder="Courriel professionnel" required />
+        <input name="company" placeholder="Entreprise" />
+        <textarea name="message" rows="4" placeholder="Votre besoin"></textarea>
+        <button type="submit">Envoyer</button>
+      </form>
+    </section>
+  </div>
+
+  <footer>SYNTHEX Corporation Agentique &middot; LCSA (en cours) &middot; synthex.ai</footer>
+</body>
+</html>
