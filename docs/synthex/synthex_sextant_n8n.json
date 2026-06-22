@@ -1,0 +1,66 @@
+{
+  "name": "SYNTHEX — SEXTANT Intelligence (HITL)",
+  "meta": { "document": "SYNTHEX-N8N-SEXTANT-v1.0", "date": "2026-06-22", "veto_reference": "SYNTHEX-VET-v1.0" },
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "0 6 * * 1" } ] } },
+      "name": "Cron — Lundi 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 240, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SEXTANT_LANGGRAPH_URL}}/invoke",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\"agent\":\"SEXTANT\",\"task_type\":\"intelligence_report\",\"domain\":\"generation_de_code\",\"horizon\":\"2026-12\",\"decision_stakes\":\"low\"}"
+      },
+      "name": "SEXTANT — invoke (LangGraph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 460, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{$json[\"veto_level\"]}}", "operation": "contains", "value2": "NIVEAU_1" } ] }
+      },
+      "name": "Veto NIVEAU 0/1 ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 680, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SYNTHEX_NOTIFY_URL}}/president",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\"channel\":\"HITL\",\"agent\":\"SEXTANT\",\"veto_level\":{{JSON.stringify($json[\"veto_level\"])}},\"reason\":{{JSON.stringify($json[\"veto_reason\"])}},\"brier\":{{$json[\"calibration\"][\"brier\"]}}}"
+      },
+      "name": "HITL — Notifier president (approbation)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 900, 180 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SYNTHEX_REPORTS_URL}}/publish",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ JSON.stringify($json) }}"
+      },
+      "name": "Publier Intelligence Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 900, 420 ]
+    }
+  ],
+  "connections": {
+    "Cron — Lundi 06:00": { "main": [ [ { "node": "SEXTANT — invoke (LangGraph)", "type": "main", "index": 0 } ] ] },
+    "SEXTANT — invoke (LangGraph)": { "main": [ [ { "node": "Veto NIVEAU 0/1 ?", "type": "main", "index": 0 } ] ] },
+    "Veto NIVEAU 0/1 ?": { "main": [ [ { "node": "HITL — Notifier president (approbation)", "type": "main", "index": 0 } ], [ { "node": "Publier Intelligence Report", "type": "main", "index": 0 } ] ] }
+  }
+}

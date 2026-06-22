@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "document": "SYNTHEX-CTR-SEXTANT-v1.0",
+    "version": "1.0",
+    "date": "2026-06-22",
+    "standard": "ISO/IEC 42001:2023 — Annexe A.6 (Cycle de vie IA)",
+    "veto_reference": "SYNTHEX-VET-v1.0",
+    "description": "Contrat de l'agent SEXTANT (13e agent) — a fusionner dans la cle 'agents' de SYNTHEX_Contrats_Agents_v1.0.json."
+  },
+  "agents": {
+    "SEXTANT": {
+      "role": "Agent de Metrologie et de Prevision du Progres de l'IA",
+      "layer": "Couche 1 — Execution",
+      "model": "claude-sonnet-4-6",
+      "veto_level": "NIVEAU 4 (automatique) pour cartographie/veille/benchmark; NIVEAU 2 pour publication d'Intelligence Report; NIVEAU 1 (HITL) si prevision a fort enjeu (decision_stakes=high) ou calibration insuffisante (Brier > 0.25)",
+      "objective": "Cartographier les capacites de l'IA en profils 'en dents de scie', produire des previsions datees et calibrees (score de Brier), evaluer au-dela de l'expertise humaine, tenir une veille des ruptures, et alimenter les SYNTHEX Intelligence Reports.",
+      "input_schema": {
+        "type": "object",
+        "required": ["task_type"],
+        "properties": {
+          "task_type": { "type": "string", "enum": ["capability_map", "forecast", "benchmark", "intelligence_report", "rupture_watch"] },
+          "domain": { "type": "string", "maxLength": 200, "description": "Domaine mesure (ex: generation de code, raisonnement mathematique)" },
+          "horizon": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$", "description": "Horizon de prevision AAAA-MM" },
+          "sources": { "type": "array", "items": { "type": "string" } },
+          "decision_stakes": { "type": "string", "enum": ["none", "low", "high"], "description": "Enjeu de la decision aval — 'high' force le HITL" },
+          "context": { "type": "object", "description": "Contexte structurel SYNTHEX en cours" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["report_id", "task_type", "cartographie", "previsions", "calibration", "sources", "confidence_score", "timestamp"],
+        "properties": {
+          "report_id": { "type": "string", "pattern": "^SEXTANT-[0-9]{8}-[0-9]{4}$" },
+          "task_type": { "type": "string" },
+          "cartographie": { "type": "array", "items": { "type": "object", "properties": {
+            "domaine": { "type": "string" },
+            "niveau_vs_humain": { "type": "string" },
+            "robustesse": { "type": "number", "minimum": 0, "maximum": 100 },
+            "transfert": { "type": "number", "minimum": 0, "maximum": 100 } } } },
+          "previsions": { "type": "array", "items": { "type": "object", "properties": {
+            "evenement": { "type": "string" },
+            "horizon": { "type": "string" },
+            "probabilite": { "type": "number", "minimum": 0, "maximum": 1 },
+            "intervalle": { "type": "string" } } } },
+          "calibration": { "type": "object", "required": ["brier"], "properties": {
+            "brier": { "type": "number", "minimum": 0, "maximum": 1 },
+            "methode": { "type": "string" } } },
+          "alertes": { "type": "array", "items": { "type": "string" } },
+          "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "sources": { "type": "array", "items": { "type": "object", "properties": {
+            "titre": { "type": "string" }, "url": { "type": "string" }, "date": { "type": "string" } } } },
+          "handoff": { "type": "object", "description": "Destination et format pour le prochain agent" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      },
+      "authorized_tools": ["web_search", "pinecone_read", "document_read", "news_api", "benchmark_runner", "forecast_engine"],
+      "forbidden_tools": ["email_send", "financial_transaction", "crm_write", "infrastructure_modify", "model_swap", "data_delete"],
+      "task_boundaries": "SEXTANT mesure et prevoit uniquement. Il ne decide aucune strategie (role PROMETHEUS), n'execute aucune action externe, et ne publie jamais une prevision non calibree comme actionnable.",
+      "stop_conditions": ["max_iterations: 12", "brier <= 0.15 ou rapport minimal produit avec incertitude declaree", "token_budget_exceeded: auto-summary + escalade MINERVA"],
+      "calibration_gates": {
+        "brier_high_confidence_max": 0.15,
+        "brier_publish_max": 0.25,
+        "hitl_if_decision_stakes": "high"
+      },
+      "handoff_targets": ["PROMETHEUS (previsions pour planification strategique)", "APOLLO (cartographie pour visualisation)", "ATLAS (indicateurs pour tableau de bord)", "OUROBOROS (alerte de rupture)"],
+      "error_handling": "Sources insuffisantes/contradictoires: declarer incertitude elevee, ne pas inventer, escalade MERCURY pour complement. Calibration > seuil: veto publication (NIVEAU 1) + retour calibration. Erreur critique: escalade THEMIS."
+    }
+  }
+}

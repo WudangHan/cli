@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><style>
+body{font-family:'Times New Roman',serif;font-size:12pt;}
+p,li{line-height:200%;text-align:justify;}
+h1{font-size:18pt;text-align:center;} h2{font-size:14pt;} h3{font-size:12.5pt;}
+table{border-collapse:collapse;width:100%;} th,td{border:1px solid #000;padding:5pt;}
+</style></head><body>
+
+<div class="titlepage">
+<h1>SYNTHEX — Documentation des Agents</h1>
+<p><b>Addendum : 13. Agent SEXTANT — Métrologie et Prévision du Progrès de l'IA</b></p>
+<p><i>À insérer dans «&nbsp;SYNTHEX — Documentation Complète des 12 Agents.docx&nbsp;» (porte le total à 13 agents).</i></p>
+<p>Document SYNTHEX-DOC-SEXTANT-v1.0 — 22 juin 2026 — CONFIDENTIEL, USAGE INTERNE</p>
+</div>
+
+<h2 class="pagebreak">13. Agent SEXTANT — Métrologie et Prévision du Progrès de l'IA</h2>
+<p><b>Couche</b> : Couche 1 — Exécution. <b>Modèle</b> : claude-sonnet-4-6. <b>Invoqué par</b> : OUROBOROS. <b>Niveau de véto</b> : NIVEAU 4 (cartographie/veille) ; NIVEAU 2 (publication d'Intelligence Report) ; NIVEAU 1 / HITL (prévision à fort enjeu ou calibration insuffisante). SEXTANT est l'agent de mesure : il cartographie les capacités de l'IA, produit des prévisions calibrées et alimente les <i>SYNTHEX Intelligence Reports</i>. Périmètre exclusif (ne chevauche ni MINERVA, ni APOLLO, ni PROMETHEUS, ni DIANA).</p>
+
+<h3>13.1 Prompt Maître</h3>
+<pre>
+Tu es SEXTANT, l'agent de metrologie et de prevision du progres de l'IA de
+SYNTHEX. Tu es un metrologue expert, calibre et intellectuellement honnete.
+
+Responsabilites :
+- Cartographier les capacites de l'IA en profils "en dents de scie"
+  (par domaine, robustesse + transfert), jamais en score unique.
+- Produire des previsions datees, probabilisees et calibrees (score de Brier).
+- Evaluer au-dela de l'expertise humaine (tournois auto-joues, verification
+  formelle, debats contradictoires).
+- Tenir une veille (compute effectif, lois d'echelle, frictions) et alerter
+  sur les ruptures et seuils franchis.
+
+Contraintes :
+- Jamais de capacite affirmee sans instrument de mesure (mesure d'abord).
+- Jamais de prevision sans incertitude calibree ; la sur-confiance non
+  calibree est une faute.
+- Aucune decision strategique (role de PROMETHEUS) ni revendication d'omnipotence.
+
+Echec :
+- Donnees insuffisantes -> declarer l'incertitude, demander un complement a
+  MERCURY/ARES, ne jamais inventer.
+- Hors perimetre -> reorienter via OUROBOROS.
+- Brier > 0.25 ou enjeu eleve -> escalade HITL via THEMIS (interrupt LangGraph).
+
+Sortie : JSON {report_id, cartographie[], previsions[], calibration{brier},
+sources[], confidence_score, alertes[], timestamp}.
+</pre>
+
+<h3>13.2 Graphe LangGraph</h3>
+<p>Implémenté par <span style="font-family:monospace">sextant_node(state)</span> (module <i>SYNTHEX-IMPL-SEXTANT-v1.0</i>, extension de SYNTHEX-IMPL-LANGGRAPH-v1.0). Le nœud est <b>idempotent</b> et en <b>lecture seule</b> ; la calibration (Brier) et l'enjeu aval (<span style="font-family:monospace">decision_stakes</span>) déclenchent le <span style="font-family:monospace">interrupt()</span> HITL pour les NIVEAU 0/1. Routage : OUROBOROS &rarr; SEXTANT ; handoffs SEXTANT &rarr; PROMETHEUS (stratégie), APOLLO (visualisation), ATLAS (tableau de bord).</p>
+
+<h3>13.3 Schéma de Données</h3>
+<table>
+  <tr><th>Sens</th><th>Champs clés</th></tr>
+  <tr><td>Entrée</td><td>task_type ∈ {capability_map, forecast, benchmark, intelligence_report, rupture_watch} ; domain ; horizon (AAAA-MM) ; decision_stakes ∈ {none, low, high} ; sources[]</td></tr>
+  <tr><td>Sortie</td><td>report_id (SEXTANT-AAAAMMJJ-NNNN) ; cartographie[] (domaine, niveau_vs_humain, robustesse, transfert) ; previsions[] (evenement, horizon, probabilite, intervalle) ; calibration{brier, methode} ; alertes[] ; confidence_score ; sources[] ; timestamp</td></tr>
+</table>
+<p>Contrat formel complet : <i>SYNTHEX-CTR-SEXTANT-v1.0</i> (à fusionner dans <span style="font-family:monospace">SYNTHEX_Contrats_Agents_v1.0.json</span>).</p>
+
+<h3>13.4 Workflow n8n</h3>
+<p><i>SYNTHEX-N8N-SEXTANT-v1.0</i> : Cron hebdomadaire &rarr; <span style="font-family:monospace">SEXTANT — invoke</span> (appel LangGraph) &rarr; nœud IF «&nbsp;Véto NIVEAU 0/1&nbsp;?&nbsp;» &rarr; branche vraie : notification président (HITL) ; branche fausse : publication de l'<i>Intelligence Report</i>. Compatible stack n8n + LangGraph + Pinecone.</p>
+
+<h3>13.5 Intégration Sandbox</h3>
+<p>Moindre privilège (Clause 5/A.9 ISO 42001) : <b>outils autorisés</b> — web_search, pinecone_read, document_read, news_api, benchmark_runner, forecast_engine ; <b>outils interdits</b> — email_send, financial_transaction, crm_write, infrastructure_modify, model_swap, data_delete. Surveillance ARES, journalisation DIANA, registre infalsifiable. Aucune action irréversible : SEXTANT est structurellement en lecture seule.</p>
+
+<h3>13.6 Seuils de véto SEXTANT (addendum à SYNTHEX-VET-v1.0)</h3>
+<table>
+  <tr><th>Condition</th><th>Seuil</th><th>Niveau / Action</th></tr>
+  <tr><td>Cartographie, benchmark, veille de rupture</td><td>—</td><td>NIVEAU 4 — automatique (lecture seule)</td></tr>
+  <tr><td>Prévision haute confiance</td><td>Brier &le; 0,15</td><td>NIVEAU 2 — publication + notification</td></tr>
+  <tr><td>Prévision publiable avec incertitude</td><td>0,15 &lt; Brier &le; 0,25</td><td>NIVEAU 2 — publication + mention d'incertitude + log</td></tr>
+  <tr><td>Calibration insuffisante</td><td>Brier &gt; 0,25</td><td>NIVEAU 1 — VÉTO publication, retour calibration (interrupt)</td></tr>
+  <tr><td>Décision à fort enjeu fondée sur la prévision</td><td>decision_stakes = high</td><td>NIVEAU 1 — HITL obligatoire avant usage</td></tr>
+  <tr><td>Détection de rupture / seuil de capacité franchi</td><td>alerte critique</td><td>NIVEAU 1 — notification président &lt; 1 h + journalisation P0</td></tr>
+</table>
+
+<div class="box">
+<p><b>&#128209; Conformité ISO/IEC 42001:2023 (AIMS)</b> — &#9989; Gouvernance : seuils de véto formalisés (Clause 5, A.5). &#9989; Risques : gradation par calibration (Clause 6.1.2). &#9989; Imputabilité : interrupt LangGraph + registre (Clause 7, A.9). &#9989; Éthique : mesure d'abord, anti-hallucination, non-omnipotence.</p>
+</div>
+
+</body></html>
