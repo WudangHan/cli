@@ -1,0 +1,6 @@
+# SEXTANT — dépendances de production (le MVP sextant.py tourne SANS ces paquets)
+langgraph>=0.2
+langchain-core>=0.3
+anthropic>=0.40
+pinecone-client>=5.0
+pydantic>=2.0
