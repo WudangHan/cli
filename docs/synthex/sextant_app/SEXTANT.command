@@ -29,18 +29,33 @@ if [ ! -f sextant.py ]; then
   exit 1
 fi
 
-# 3) Parametres (Entree = valeur par defaut)
-read -r -p "Domaine [code|math|agents] (defaut: code) : " DOMAIN
-DOMAIN=${DOMAIN:-code}
-read -r -p "Horizon AAAA-MM (defaut: 2026-12)        : " HORIZON
-HORIZON=${HORIZON:-2026-12}
+# 3) Mode (Entree = valeur par defaut)
+echo "Que veux-tu produire ?"
+echo "  1) report      — prevision par domaine (code|math|agents)"
+echo "  2) agi-profile — profil cognitif dentele (CHC) + voies AGI->ASI"
+read -r -p "Choix [1|2] (defaut: 1) : " MODE
+MODE=${MODE:-1}
 
-OUT="rapport_SEXTANT_${DOMAIN}_$(date +%Y%m%d-%H%M%S).json"
-echo
-echo ">> Generation du rapport ($DOMAIN, $HORIZON)..."
-echo
-python3 sextant.py report --domain "$DOMAIN" --horizon "$HORIZON" --auto-approve --out "$OUT"
-STATUS=$?
+if [ "$MODE" = "2" ]; then
+  OUT="profil_SEXTANT_agi_$(date +%Y%m%d-%H%M%S).json"
+  echo
+  echo ">> Generation du profil AGI (CHC + voies ASI)..."
+  echo
+  python3 sextant.py agi-profile --auto-approve --out "$OUT"
+  STATUS=$?
+else
+  read -r -p "Domaine [code|math|agents] (defaut: code) : " DOMAIN
+  DOMAIN=${DOMAIN:-code}
+  read -r -p "Horizon AAAA-MM (defaut: 2026-12)        : " HORIZON
+  HORIZON=${HORIZON:-2026-12}
+
+  OUT="rapport_SEXTANT_${DOMAIN}_$(date +%Y%m%d-%H%M%S).json"
+  echo
+  echo ">> Generation du rapport ($DOMAIN, $HORIZON)..."
+  echo
+  python3 sextant.py report --domain "$DOMAIN" --horizon "$HORIZON" --auto-approve --out "$OUT"
+  STATUS=$?
+fi
 echo
 if [ "$STATUS" -eq 0 ]; then
   echo "[OK] Rapport ecrit : $OUT"
