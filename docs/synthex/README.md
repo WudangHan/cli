@@ -23,6 +23,14 @@ Documents produits en session (juin 2026), reliant le rapport *From AGI to ASI*
 
 Seuils calibrés (addendum à `SYNTHEX-VET-v1.0`) : **Brier ≤ 0,15** haute confiance · **> 0,25 → véto publication** (NIVEAU 1) · `decision_stakes=high` **→ HITL**.
 
+## Corpus de veille AGI/ASI (instrument de mesure de SEXTANT)
+
+| Fichier | Rôle |
+|---|---|
+| `SYNTHEX_Note_AGIASI_v1.0.docx` | **Note de veille intégrée** (MLA 9e) : synthèse de 5 sources AGI/ASI — Hendrycks et al. (définition CHC de l'AGI), DeepMind (*From AGI to ASI*, 4 voies), Shah et al. (sûreté, 4 familles de risque), Mumuni & Mumuni (4 verrous fondationnels), Bennett. Sert de **cadre de mesure** à SEXTANT. |
+
+Ce corpus alimente la commande `sextant_app/sextant.py agi-profile` : **profil cognitif « dentelé » (CHC, 10 domaines)**, **indice AGI composite** (~73/100) et **verrou** mémoire long terme (Glr ≈ 8/100), **4 voies AGI→ASI** (SYNTHEX mise sur les voies 3 et 4) et **4 familles de risque** rattachées au véto.
+
 ## Sources & reproductibilité
 
 - `*.html` — sources HTML de chaque document (`sextant.html`, `synthex.html`, `synthex_sextant.html`).
