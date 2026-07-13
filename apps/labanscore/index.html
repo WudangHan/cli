@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="LabanScore — création en direct d'une portée de Labanotation synchronisée avec une vidéo, d'après le système décrit par Ann Hutchinson Guest. / Live Labanotation score editor synchronized with scrolling video." />
+  <meta name="author" content="Sylvain Gagné, Ph.D." />
+  <meta name="keywords" content="Labanotation, Kinetography Laban, dance notation, movement analysis, EMBODIAI, Ann Hutchinson Guest" />
+  <title>LabanScore — Portée Labanotation en direct · EMBODIAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">◈</span>
+      <div class="brand-titles">
+        <strong>Laban<span>Score</span></strong>
+        <small data-i18n="app.tagline">Portée de Labanotation en direct · vidéo déroulante</small>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-help" class="btn btn-ghost" data-i18n="btn.help">Guide</button>
+      <button id="btn-import" class="btn btn-ghost" data-i18n="btn.import">Importer JSON</button>
+      <input type="file" id="import-file" accept="application/json" hidden />
+      <button id="btn-export-json" class="btn btn-ghost" data-i18n="btn.exportJson">Exporter JSON</button>
+      <button id="btn-export-svg" class="btn btn-primary" data-i18n="btn.exportSvg">Exporter la portée (SVG)</button>
+      <div class="lang-switch" role="group" aria-label="Langue / Language">
+        <button id="lang-fr" class="lang-active">FR</button><span aria-hidden="true">·</span><button id="lang-en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- ============ VIDEO PANEL ============ -->
+    <section class="panel video-panel" aria-label="Vidéo">
+      <div class="panel-head">
+        <h2 data-i18n="video.title">Vidéo source</h2>
+        <label class="btn btn-primary btn-sm file-btn">
+          <span data-i18n="video.load">Charger une vidéo…</span>
+          <input type="file" id="video-file" accept="video/*" hidden />
+        </label>
+      </div>
+      <div class="video-wrap">
+        <video id="video" playsinline></video>
+        <p id="video-placeholder" class="video-placeholder" data-i18n="video.placeholder">
+          Chargez une vidéo locale (danse, lutte, geste quotidien…). La portée défile en synchronisation avec la lecture.
+        </p>
+      </div>
+      <div class="transport">
+        <button id="btn-step-back" class="btn btn-ghost btn-sm" title="-1 image">⏮︎</button>
+        <button id="btn-play" class="btn btn-primary btn-play">▶</button>
+        <button id="btn-step-fwd" class="btn btn-ghost btn-sm" title="+1 image">⏭︎</button>
+        <span id="timecode" class="timecode">00:00.00</span>
+        <label class="rate-label"><span data-i18n="video.rate">Vitesse</span>
+          <select id="rate">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <label class="dur-label" id="manual-duration-wrap"><span data-i18n="video.duration">Durée (s)</span>
+          <input type="number" id="manual-duration" min="5" max="3600" step="5" value="60" />
+        </label>
+      </div>
+
+      <div class="live-box">
+        <h3 data-i18n="live.title">Notation en direct</h3>
+        <p class="hint" data-i18n="live.hint">
+          Pendant la lecture, maintenez le bouton d'une colonne : le signe choisi dans la palette est écrit au temps courant et sa longueur suit la durée d'appui (durée = temps, principe fondamental de la cinétographie).
+        </p>
+        <div id="live-strip" class="live-strip" role="group" aria-label="Colonnes"></div>
+      </div>
+
+      <div class="inspector" id="inspector" hidden>
+        <h3 data-i18n="insp.title">Signe sélectionné</h3>
+        <div class="insp-grid">
+          <label><span data-i18n="insp.column">Colonne</span><select id="insp-column"></select></label>
+          <label><span data-i18n="insp.start">Début (s)</span><input type="number" id="insp-start" step="0.05" min="0" /></label>
+          <label><span data-i18n="insp.dur">Durée (s)</span><input type="number" id="insp-dur" step="0.05" min="0.05" /></label>
+          <label id="insp-level-wrap"><span data-i18n="insp.level">Niveau</span>
+            <select id="insp-level">
+              <option value="high" data-i18n="level.high">Haut</option>
+              <option value="mid" data-i18n="level.mid">Moyen</option>
+              <option value="low" data-i18n="level.low">Bas</option>
+            </select>
+          </label>
+        </div>
+        <button id="insp-delete" class="btn btn-danger btn-sm" data-i18n="insp.delete">Supprimer le signe</button>
+      </div>
+    </section>
+
+    <!-- ============ STAFF PANEL ============ -->
+    <section class="panel staff-panel" aria-label="Portée">
+      <div class="staff-toolbar">
+        <div class="tool-group" aria-label="Directions">
+          <span class="tool-label" data-i18n="pal.direction">Direction</span>
+          <div id="palette-dirs" class="palette-row"></div>
+        </div>
+        <div class="tool-group" aria-label="Niveaux">
+          <span class="tool-label" data-i18n="pal.level">Niveau</span>
+          <div id="palette-levels" class="palette-row"></div>
+        </div>
+        <div class="tool-group" aria-label="Autres signes">
+          <span class="tool-label" data-i18n="pal.other">Autres</span>
+          <div id="palette-extras" class="palette-row"></div>
+        </div>
+        <div class="tool-group tool-group-settings">
+          <label><span data-i18n="set.tempo">Tempo</span><input type="number" id="bpm" min="20" max="240" value="60" /></label>
+          <label><span data-i18n="set.beats">Temps/mesure</span><input type="number" id="beats-per-bar" min="1" max="12" value="4" /></label>
+          <label><span data-i18n="set.zoom">Zoom</span><input type="range" id="zoom" min="24" max="200" value="72" /></label>
+          <label class="check"><input type="checkbox" id="snap" checked /><span data-i18n="set.snap">Aimanter aux temps</span></label>
+          <label class="check"><input type="checkbox" id="follow" checked /><span data-i18n="set.follow">Suivre la vidéo</span></label>
+        </div>
+        <div class="tool-group tool-group-edit">
+          <button id="btn-undo" class="btn btn-ghost btn-sm" title="Ctrl+Z">↶ <span data-i18n="btn.undo">Annuler</span></button>
+          <button id="btn-redo" class="btn btn-ghost btn-sm" title="Ctrl+Y">↷ <span data-i18n="btn.redo">Rétablir</span></button>
+          <button id="btn-clear" class="btn btn-danger btn-sm" data-i18n="btn.clear">Tout effacer</button>
+        </div>
+      </div>
+
+      <div class="staff-headers" id="staff-headers" aria-hidden="true"></div>
+      <div class="staff-outer">
+        <div class="staff-viewport" id="staff-viewport">
+          <svg id="staff-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <div class="now-line" id="now-line"><span id="now-badge" class="now-badge">0.00 s</span></div>
+      </div>
+      <p class="staff-help hint">
+        <span data-i18n="staff.hint">Clic : écrire le signe courant · Glisser : déplacer · Poignées : durée · Clic droit : supprimer · Alt+clic : positionner la vidéo à ce temps. La portée se lit de bas en haut.</span>
+      </p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      <strong>EMBODIAI · LabanScore v1.0</strong> —
+      <span data-i18n="footer.ref">Système de notation d'après Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4ᵉ éd.). Sauvegarde automatique locale ; aucune donnée n'est transmise.</span>
+    </p>
+  </footer>
+
+  <dialog id="help-dialog" class="help-dialog">
+    <button class="dialog-close" id="help-close" aria-label="Fermer">✕</button>
+    <h2 data-i18n="help.title">Lire et écrire la Labanotation</h2>
+    <div class="help-cols">
+      <div>
+        <h3 data-i18n="help.staffTitle">La portée</h3>
+        <p data-i18n="help.staff">La portée verticale représente le corps vu de dos ; elle se lit de bas en haut. La ligne centrale sépare le côté gauche du côté droit. De part et d'autre du centre : appui (pas), geste de jambe, corps (torse), bras, tête. La double barre marque le début ; les barres de mesure suivent le tempo.</p>
+        <h3 data-i18n="help.timeTitle">Le temps</h3>
+        <p data-i18n="help.time">La longueur d'un signe indique sa durée : un signe deux fois plus long dure deux fois plus longtemps. Une case vide dans la colonne d'appui signifie une absence d'appui (saut).</p>
+      </div>
+      <div>
+        <h3 data-i18n="help.dirTitle">Les signes de direction</h3>
+        <p data-i18n="help.dir">La forme du signe donne la direction (place = rectangle ; avant/arrière = tenon ; côté = pointe ; diagonales = biseau). La teinte donne le niveau : noir plein = bas, point central = moyen, hachures = haut.</p>
+        <h3 data-i18n="help.otherTitle">Autres signes</h3>
+        <p data-i18n="help.other">Tour à gauche/droite (parallélogramme), signe de tenue (o) pour conserver une position. Les versions futures ajouteront rotations chiffrées, épingles, chemins et signes de contact.</p>
+      </div>
+    </div>
+    <p class="help-ref" data-i18n="help.ref">Référence complète : Ann Hutchinson Guest, <em>Labanotation</em>, 4ᵉ édition, Routledge.</p>
+  </dialog>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
