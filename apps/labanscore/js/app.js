@@ -385,11 +385,15 @@
     });
     $("insp-start").addEventListener("change", () => {
       const sym = getSym(selectedId); if (!sym) return;
-      pushUndo(); sym.start = clamp(+$("insp-start").value || 0, 0, score.duration); render();
+      pushUndo();
+      sym.start = clamp(+$("insp-start").value || 0, 0, Math.max(0, score.duration - sym.dur));
+      syncInspector(); render();
     });
     $("insp-dur").addEventListener("change", () => {
       const sym = getSym(selectedId); if (!sym) return;
-      pushUndo(); sym.dur = Math.max(0.05, +$("insp-dur").value || beatSec()); render();
+      pushUndo();
+      sym.dur = clamp(+$("insp-dur").value || beatSec(), 0.05, Math.max(0.05, score.duration - sym.start));
+      syncInspector(); render();
     });
     $("insp-level").addEventListener("change", () => {
       const sym = getSym(selectedId); if (!sym || sym.kind !== "dir") return;
@@ -687,10 +691,20 @@
         if (!Array.isArray(data.symbols)) throw new Error("bad");
         if (score.symbols.length && !confirm(t("confirm.import"))) return;
         pushUndo();
-        score.symbols = data.symbols.map((s) => ({ ...s, id: idSeq++ }));
-        if (+data.duration > 0 && !hasVideo) score.duration = +data.duration;
-        if (+data.bpm) bpmInput.value = data.bpm;
-        if (+data.beatsPerBar) beatsInput.value = data.beatsPerBar;
+        // sanitize: finite times only, duration bounded like the manual control
+        if (+data.duration > 0 && !hasVideo) {
+          score.duration = clamp(Math.ceil(+data.duration) || 60, 5, 3600);
+          $("manual-duration").value = score.duration;
+        }
+        score.symbols = data.symbols
+          .filter((s) => s && isFinite(+s.start) && +s.start >= 0 && isFinite(+s.dur))
+          .map((s) => ({
+            ...s, id: idSeq++,
+            start: clamp(+s.start, 0, score.duration),
+            dur: clamp(+s.dur, 0, score.duration),
+          }));
+        if (+data.bpm) bpmInput.value = clamp(+data.bpm, 20, 240);
+        if (+data.beatsPerBar) beatsInput.value = clamp(+data.beatsPerBar, 1, 12);
         selectedId = null; syncInspector(); render();
       } catch { alert(t("err.import")); }
     });
