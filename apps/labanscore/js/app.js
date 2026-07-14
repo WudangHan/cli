@@ -58,6 +58,7 @@
       "btn.signs": "Signes", "btn.scores": "Mes portées", "btn.print": "Imprimer",
       "video.urlPh": "Coller un lien YouTube ou une URL vidéo (mp4, webm…)",
       "video.loadUrl": "Charger",
+      "video.ytHint": "La vidéo YouTube se lit avec ses propres commandes. Si le défilement de la portée ne suit pas automatiquement, réglez la « Durée » puis utilisez Alt+clic sur la portée pour vous positionner au temps voulu.",
       "err.url": "Lien non reconnu ou vidéo indisponible.",
       "err.popup": "Autorisez les fenêtres pop-up pour imprimer la portée.",
       "signs.title": "Bibliothèque des signes",
@@ -124,6 +125,7 @@
       "btn.signs": "Signs", "btn.scores": "My scores", "btn.print": "Print",
       "video.urlPh": "Paste a YouTube link or a video URL (mp4, webm…)",
       "video.loadUrl": "Load",
+      "video.ytHint": "The YouTube video plays with its own controls. If the staff doesn't scroll automatically, set the “Duration” then Alt+click the staff to jump to the time you want.",
       "err.url": "Unrecognized link or unavailable video.",
       "err.popup": "Allow pop-up windows to print the score.",
       "signs.title": "Sign library",
@@ -642,7 +644,7 @@
   // (currentTime, playerState, duration, playbackRate) that we mirror here,
   // extrapolating currentTime between packets for smooth staff scrolling.
   const ytInfo = { t: 0, at: 0, rate: 1, state: -1, duration: NaN, ready: false };
-  let ytFrame = null, ytReadyTimer = null, ytMsgBound = false;
+  let ytFrame = null, ytHandshake = null, ytMsgBound = false;
 
   const player = {
     kind: "none", // 'none' | 'html5' | 'yt'
@@ -718,15 +720,13 @@
       try { data = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch { return; }
       if (!data || typeof data !== "object") return;
       if (data.event === "onReady") {
-        ytInfo.ready = true;
-        clearTimeout(ytReadyTimer);
+        markYtReady();
         ytListen();
         player.setRate(+$("rate").value);
       } else if (data.event === "onStateChange") {
         updateYtState(+data.info);
       } else if (data.event === "infoDelivery" && data.info) {
-        ytInfo.ready = true;
-        clearTimeout(ytReadyTimer);
+        markYtReady();
         if (typeof data.info.currentTime === "number") {
           ytInfo.t = data.info.currentTime;
           ytInfo.at = performance.now();
@@ -741,11 +741,18 @@
       }
     });
   }
+  function markYtReady() {
+    if (ytInfo.ready) return;
+    ytInfo.ready = true;
+    if (ytHandshake) { clearInterval(ytHandshake); ytHandshake = null; }
+    $("yt-hint").hidden = true;
+  }
   function destroyYt() {
-    clearTimeout(ytReadyTimer);
+    if (ytHandshake) { clearInterval(ytHandshake); ytHandshake = null; }
     ytFrame = null;
     ytWrap.hidden = true;
     ytWrap.innerHTML = "";
+    $("yt-hint").hidden = true;
     ytInfo.t = 0; ytInfo.at = 0; ytInfo.rate = 1;
     ytInfo.state = -1; ytInfo.duration = NaN; ytInfo.ready = false;
   }
@@ -762,28 +769,34 @@
     player.kind = "yt";
     $("video-placeholder").style.display = "none";
     ytWrap.hidden = false;
+    $("yt-hint").hidden = true;
     bindYtMessages();
-    // the origin param is required for the postMessage API on http(s) pages
+    // Like LabanWrestle, the standard embed iframe is shown and plays on its
+    // own; the postMessage sync below is a best-effort enhancement layered on
+    // top and never gates whether the video appears.
     const origin = /^https?:$/.test(location.protocol)
       ? `&origin=${encodeURIComponent(location.origin)}` : "";
     ytFrame = document.createElement("iframe");
     ytFrame.src = `https://www.youtube.com/embed/${id}?enablejsapi=1&playsinline=1&rel=0${origin}`;
-    ytFrame.allow = "autoplay; encrypted-media; picture-in-picture";
+    ytFrame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    ytFrame.allowFullscreen = true;
     ytFrame.title = "YouTube";
     ytFrame.addEventListener("load", () => {
+      // The embed only starts emitting infoDelivery once it receives a
+      // "listening" message, and that message can race the widget bootstrap,
+      // so keep sending it until the first packet arrives.
       ytListen();
-      setTimeout(ytListen, 400);
-      setTimeout(ytListen, 1500);
+      let tries = 0;
+      ytHandshake = setInterval(() => {
+        if (ytInfo.ready || ++tries > 30) { clearInterval(ytHandshake); ytHandshake = null; return; }
+        ytListen();
+      }, 500);
     });
     ytWrap.appendChild(ytFrame);
-    ytReadyTimer = setTimeout(() => {
-      if (!ytInfo.ready) {
-        destroyYt();
-        player.kind = "none";
-        $("video-placeholder").style.display = "";
-        alert(t("err.url"));
-      }
-    }, 12000);
+    // If sync never establishes (e.g. a strict host CSP), the video still
+    // plays via YouTube's own controls — show a hint rather than tearing it
+    // down, and let the manual duration drive the staff.
+    setTimeout(() => { if (player.kind === "yt" && !ytInfo.ready) $("yt-hint").hidden = false; }, 4000);
   }
   // Recognize YouTube URLs; anything else http(s) is treated as a direct media URL.
   function parseVideoUrl(raw) {

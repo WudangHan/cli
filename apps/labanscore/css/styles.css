@@ -103,6 +103,11 @@ body {
 .url-row input[type="url"]:focus { outline: none; border-color: var(--accent); }
 .yt-wrap { width: 100%; aspect-ratio: 16 / 9; }
 .yt-wrap iframe { width: 100%; height: 100%; display: block; border: 0; }
+.yt-hint {
+  margin: 0.4rem 0 0; padding: 0.5rem 0.6rem;
+  background: rgba(45, 212, 191, 0.09); border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: 6px; color: var(--text-dim); font-size: 0.76rem; line-height: 1.4;
+}
 .video-wrap {
   position: relative; border-radius: 8px; overflow: hidden;
   background: #000; border: 1px solid var(--line-soft);
