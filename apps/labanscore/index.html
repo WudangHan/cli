@@ -86,6 +86,13 @@
           Pendant la lecture, maintenez le bouton d'une colonne : le signe choisi dans la palette est écrit au temps courant et sa longueur suit la durée d'appui (durée = temps, principe fondamental de la cinétographie).
         </p>
         <div id="live-strip" class="live-strip" role="group" aria-label="Colonnes"></div>
+        <p class="hint keys-hint" data-i18n="live.keys">Raccourcis clavier : touches 1–0 = colonnes (maintenir pour écrire), de la tête gauche (1) à la tête droite (0).</p>
+        <div class="live-tools">
+          <button id="btn-auto" class="btn btn-ghost btn-sm" data-i18n="auto.btn">Analyse auto (vidéo locale)</button>
+          <button id="btn-auto-cancel" class="btn btn-danger btn-sm" data-i18n="auto.cancel" hidden>Arrêter</button>
+          <span id="auto-progress" class="auto-progress" hidden></span>
+        </div>
+        <p class="hint auto-note" data-i18n="auto.note">Brouillon heuristique par estimation de posture : place des signes de direction pour les bras et les jambes, à corriger ensuite. Vidéo locale uniquement (pas de lecture des pixels sur YouTube).</p>
       </div>
 
       <div class="inspector" id="inspector" hidden>

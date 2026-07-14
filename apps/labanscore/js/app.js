@@ -80,6 +80,17 @@
       "scores.confirmDelete": "Supprimer la portée « {name} » ?",
       "scores.storageFull": "Stockage local plein : supprimez des portées ou exportez en JSON.",
       "print.system": "Système",
+      "live.keys": "Raccourcis clavier : touches 1–0 = colonnes (maintenir pour écrire), de la tête gauche (1) à la tête droite (0).",
+      "auto.btn": "Analyse auto (vidéo locale)",
+      "auto.cancel": "Arrêter",
+      "auto.note": "Brouillon heuristique par estimation de posture : place des signes de direction pour les bras et les jambes, à corriger ensuite. Vidéo locale uniquement (pas de lecture des pixels sur YouTube).",
+      "auto.localOnly": "L'analyse automatique nécessite une vidéo locale (ou une URL vidéo directe). Elle ne peut pas lire les pixels d'une vidéo YouTube.",
+      "auto.loading": "Chargement du modèle de posture…",
+      "auto.working": "Analyse : {pct} %",
+      "auto.done": "Analyse terminée : {n} signes ajoutés (brouillon à corriger).",
+      "auto.none": "Aucune posture détectée de façon fiable dans la vidéo.",
+      "auto.loadFail": "Impossible de charger le module d'estimation de posture (MediaPipe). Vérifiez la connexion ; l'analyse auto ne fonctionne pas dans l'aperçu claude.ai. La notation manuelle reste disponible.",
+      "auto.confirmReplace": "Ajouter les signes détectés à la portée actuelle ?",
     },
     en: {
       "app.tagline": "Live Labanotation score · scrolling video",
@@ -147,6 +158,17 @@
       "scores.confirmDelete": "Delete the score “{name}”?",
       "scores.storageFull": "Local storage is full: delete some scores or export to JSON.",
       "print.system": "System",
+      "live.keys": "Keyboard shortcuts: keys 1–0 = columns (hold to write), from left head (1) to right head (0).",
+      "auto.btn": "Auto analysis (local video)",
+      "auto.cancel": "Stop",
+      "auto.note": "Heuristic draft from pose estimation: places direction signs for the arms and legs, to be corrected afterwards. Local video only (no pixel access on YouTube).",
+      "auto.localOnly": "Automatic analysis needs a local video (or a direct video URL). It cannot read the pixels of a YouTube video.",
+      "auto.loading": "Loading the pose model…",
+      "auto.working": "Analyzing: {pct} %",
+      "auto.done": "Analysis complete: {n} signs added (draft to correct).",
+      "auto.none": "No pose reliably detected in the video.",
+      "auto.loadFail": "Could not load the pose-estimation module (MediaPipe). Check the connection; auto analysis does not work in the claude.ai preview. Manual notation is still available.",
+      "auto.confirmReplace": "Add the detected signs to the current score?",
     },
   };
   let lang = (new URLSearchParams(location.search).get("lang")) ||
@@ -1165,15 +1187,215 @@
   }
   $("btn-print").addEventListener("click", printScore);
 
+  /* ==========================================================================
+     AUTOMATIC DRAFT — pose estimation → Labanotation direction signs.
+     A best-effort heuristic (not a validated transcription): MediaPipe Pose
+     gives 3D body landmarks per sampled frame; from those we build a body
+     frame (up / right / forward), express each limb as a vector in that
+     frame, and classify it into one of the 9 directions × 3 levels. Runs on
+     a LOCAL video only — a cross-origin YouTube embed exposes no pixels.
+     The math below is pure and unit-tested; MediaPipe is loaded lazily.
+     ========================================================================== */
+  const LM = { // MediaPipe Pose landmark indices (subject's own left/right)
+    nose: 0,
+    shoulderL: 11, shoulderR: 12, elbowL: 13, elbowR: 14, wristL: 15, wristR: 16,
+    hipL: 23, hipR: 24, kneeL: 25, kneeR: 26, ankleL: 27, ankleR: 28,
+  };
+  const v3 = {
+    sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+    add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+    scale: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
+    dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+    cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+    len: (a) => Math.hypot(a[0], a[1], a[2]),
+    norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+    mid: (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2],
+  };
+  const pt = (lm, i) => [lm[i].x, lm[i].y, lm[i].z];
+
+  // Build an orthonormal body frame from landmarks. Forward is anchored to the
+  // facing direction (the nose) so the cross-product handedness can't flip it.
+  function buildBodyFrame(lm) {
+    if (!lm || lm.length < 29) return null;
+    const hips = v3.mid(pt(lm, LM.hipL), pt(lm, LM.hipR));
+    const shoulders = v3.mid(pt(lm, LM.shoulderL), pt(lm, LM.shoulderR));
+    const up = v3.norm(v3.sub(shoulders, hips));               // torso up
+    const rightA = v3.norm(v3.sub(pt(lm, LM.hipR), pt(lm, LM.hipL))); // subject's right
+    let fwd = v3.norm(v3.cross(rightA, up));
+    const faceDir = v3.sub(pt(lm, LM.nose), hips);
+    if (v3.dot(fwd, faceDir) < 0) fwd = v3.scale(fwd, -1);     // orient toward facing
+    if (!isFinite(up[0]) || !isFinite(fwd[0])) return null;
+    return { up, rightA, fwd, hips };
+  }
+
+  // Classify a limb vector (in world space) into a Labanotation {dir, level}.
+  const AUTO = { placeH: 0.35, levelHi: 0.5, levelLo: -0.5 };
+  function classifyLimb(vecWorld, frame) {
+    const v = v3.norm(vecWorld);
+    if (!isFinite(v[0])) return null;
+    const upC = v3.dot(v, frame.up);
+    const rC = v3.dot(v, frame.rightA);
+    const fC = v3.dot(v, frame.fwd);
+    const level = upC > AUTO.levelHi ? "high" : (upC < AUTO.levelLo ? "low" : "mid");
+    const hmag = Math.hypot(rC, fC);
+    if (hmag < AUTO.placeH) return { dir: "place", level };
+    const ang = Math.atan2(rC, fC) * 180 / Math.PI; // 0 = forward, +90 = subject's right
+    const sectors = [
+      [-22.5, 22.5, "fwd"], [22.5, 67.5, "diagFR"], [67.5, 112.5, "right"],
+      [112.5, 157.5, "diagBR"], [-67.5, -22.5, "diagFL"], [-112.5, -67.5, "left"],
+      [-157.5, -112.5, "diagBL"],
+    ];
+    let dir = "back";
+    for (const [lo, hi, d] of sectors) { if (ang >= lo && ang < hi) { dir = d; break; } }
+    return { dir, level };
+  }
+
+  // Extract per-limb classifications for one frame's landmarks.
+  function limbsFromLandmarks(lm, vis) {
+    const frame = buildBodyFrame(lm);
+    if (!frame) return null;
+    const ok = (i) => !vis || vis[i] == null || vis[i] > 0.5;
+    const out = {};
+    const limb = (col, aIdx, bIdx) => {
+      if (!ok(aIdx) || !ok(bIdx)) { out[col] = null; return; }
+      out[col] = classifyLimb(v3.sub(pt(lm, bIdx), pt(lm, aIdx)), frame);
+    };
+    limb("armL", LM.shoulderL, LM.wristL);
+    limb("armR", LM.shoulderR, LM.wristR);
+    limb("legL", LM.hipL, LM.ankleL);
+    limb("legR", LM.hipR, LM.ankleR);
+    return out;
+  }
+
+  // Merge a time series of per-frame classifications into sustained signs.
+  function posesToSigns(samples, opts) {
+    const minDur = (opts && opts.minDur) || 0.35;
+    const cols = ["armL", "armR", "legL", "legR"];
+    const out = [];
+    for (const col of cols) {
+      let cur = null; // { dir, level, start, end }
+      const flush = (endT) => {
+        if (cur && endT - cur.start >= minDur) {
+          out.push({ kind: "dir", col, dir: cur.dir, level: cur.level,
+            start: +cur.start.toFixed(2), dur: +(endT - cur.start).toFixed(2) });
+        }
+        cur = null;
+      };
+      for (const s of samples) {
+        const c = s.limbs && s.limbs[col];
+        if (!c) { flush(s.t); continue; }
+        if (cur && cur.dir === c.dir && cur.level === c.level) { cur.end = s.t; }
+        else { flush(s.t); cur = { dir: c.dir, level: c.level, start: s.t, end: s.t }; }
+      }
+      if (cur) flush(samples.length ? samples[samples.length - 1].t + minDur : cur.start + minDur);
+    }
+    return out.sort((a, b) => a.start - b.start);
+  }
+  // exposed for tests
+  window.LabanScoreAuto = { buildBodyFrame, classifyLimb, limbsFromLandmarks, posesToSigns, v3, LM };
+
+  let poseLandmarker = null, autoCancel = false, autoRunning = false;
+  async function ensurePoseLandmarker() {
+    if (poseLandmarker) return poseLandmarker;
+    const BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+    const vision = await import(/* @vite-ignore */ `${BASE}/vision_bundle.mjs`);
+    const resolver = await vision.FilesetResolver.forVisionTasks(`${BASE}/wasm`);
+    poseLandmarker = await vision.PoseLandmarker.createFromOptions(resolver, {
+      baseOptions: {
+        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+      },
+      runningMode: "VIDEO", numPoses: 1,
+    });
+    return poseLandmarker;
+  }
+  function seekVideo(tv) {
+    return new Promise((resolve) => {
+      const onSeek = () => { video.removeEventListener("seeked", onSeek); resolve(); };
+      video.addEventListener("seeked", onSeek);
+      video.currentTime = tv;
+    });
+  }
+  function setAutoProgress(msg) {
+    const el = $("auto-progress");
+    el.hidden = !msg; el.textContent = msg || "";
+  }
+  async function analyzeVideoAuto() {
+    if (autoRunning) return;
+    if (player.kind !== "html5") { alert(t("auto.localOnly")); return; }
+    const dur = video.duration;
+    if (!isFinite(dur) || dur <= 0) { alert(t("auto.localOnly")); return; }
+    autoRunning = true; autoCancel = false;
+    $("btn-auto").hidden = true; $("btn-auto-cancel").hidden = false;
+    setAutoProgress(t("auto.loading"));
+    let landmarker;
+    try { landmarker = await ensurePoseLandmarker(); }
+    catch (err) {
+      setAutoProgress(""); $("btn-auto").hidden = false; $("btn-auto-cancel").hidden = true;
+      autoRunning = false; alert(t("auto.loadFail")); return;
+    }
+    const wasPaused = video.paused;
+    video.pause();
+    const fps = 4, step = 1 / fps, maxFrames = 2000;
+    const samples = [];
+    let frame = 0;
+    for (let tv = 0; tv < dur && frame < maxFrames; tv += step, frame++) {
+      if (autoCancel) break;
+      await seekVideo(Math.min(tv, dur - 1e-3));
+      let res;
+      try { res = landmarker.detectForVideo(video, performance.now()); } catch { res = null; }
+      const world = res && res.worldLandmarks && res.worldLandmarks[0];
+      const scr = res && res.landmarks && res.landmarks[0];
+      const vis = scr ? scr.map((p) => (p.visibility != null ? p.visibility : 1)) : null;
+      samples.push({ t: tv, limbs: world ? limbsFromLandmarks(world, vis) : null });
+      setAutoProgress(t("auto.working").replace("{pct}", Math.round((tv / dur) * 100)));
+    }
+    const signs = posesToSigns(samples);
+    $("btn-auto").hidden = false; $("btn-auto-cancel").hidden = true;
+    autoRunning = false;
+    if (!wasPaused) video.play();
+    if (!signs.length) { setAutoProgress(""); alert(t("auto.none")); return; }
+    pushUndo();
+    for (const s of signs) { s.id = idSeq++; score.symbols.push(s); }
+    selectedId = null; syncInspector(); render();
+    setAutoProgress(t("auto.done").replace("{n}", signs.length));
+    setTimeout(() => setAutoProgress(""), 6000);
+  }
+  $("btn-auto").addEventListener("click", analyzeVideoAuto);
+  $("btn-auto-cancel").addEventListener("click", () => { autoCancel = true; });
+
   /* ---------------- keyboard ---------------- */
+  // digit keys 1..0 map to the 10 columns in visual order (hold to record)
+  const KEYCOLS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+  const liveBtnFor = (colId) => document.querySelector(`#live-strip button[data-col="${colId}"]`);
   document.addEventListener("keydown", (e) => {
     const tag = (e.target.tagName || "").toLowerCase();
     if (tag === "input" || tag === "select" || tag === "textarea") return;
+    const ki = KEYCOLS.indexOf(e.key);
+    if (ki >= 0 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      if (e.repeat) return;
+      const col = COLUMNS[ki].id, btn = liveBtnFor(col);
+      if (btn) { btn.classList.add("key-armed"); startLive(col, btn); }
+      return;
+    }
     if (e.code === "Space") { e.preventDefault(); togglePlay(); }
     else if (e.key === "Delete" || e.key === "Backspace") { if (selectedId != null) deleteSym(selectedId); }
     else if (e.key === "Escape") { selectedId = null; syncInspector(); render(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) { e.preventDefault(); redo(); }
+  });
+  document.addEventListener("keyup", (e) => {
+    const ki = KEYCOLS.indexOf(e.key);
+    if (ki < 0) return;
+    const col = COLUMNS[ki].id, btn = liveBtnFor(col);
+    if (btn) { btn.classList.remove("key-armed"); stopLive(col, btn); }
+  });
+  // release any held key-columns if focus leaves the window
+  window.addEventListener("blur", () => {
+    COLUMNS.forEach((c) => {
+      const btn = liveBtnFor(c.id);
+      if (btn && liveRec[c.id]) { btn.classList.remove("key-armed"); stopLive(c.id, btn); }
+    });
   });
 
   /* ---------------- language ---------------- */
