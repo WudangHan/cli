@@ -23,10 +23,13 @@
     </div>
     <div class="header-actions">
       <button id="btn-help" class="btn btn-ghost" data-i18n="btn.help">Guide</button>
+      <button id="btn-signs" class="btn btn-ghost" data-i18n="btn.signs">Signes</button>
+      <button id="btn-scores" class="btn btn-ghost" data-i18n="btn.scores">Mes portées</button>
       <button id="btn-import" class="btn btn-ghost" data-i18n="btn.import">Importer JSON</button>
       <input type="file" id="import-file" accept="application/json" hidden />
       <button id="btn-export-json" class="btn btn-ghost" data-i18n="btn.exportJson">Exporter JSON</button>
       <button id="btn-export-svg" class="btn btn-primary" data-i18n="btn.exportSvg">Exporter la portée (SVG)</button>
+      <button id="btn-print" class="btn btn-ghost" data-i18n="btn.print">Imprimer</button>
       <div class="lang-switch" role="group" aria-label="Langue / Language">
         <button id="lang-fr" class="lang-active">FR</button><span aria-hidden="true">·</span><button id="lang-en">EN</button>
       </div>
@@ -43,10 +46,15 @@
           <input type="file" id="video-file" accept="video/*" hidden />
         </label>
       </div>
+      <div class="url-row">
+        <input type="url" id="video-url" data-i18n-ph="video.urlPh" placeholder="Coller un lien YouTube ou une URL vidéo (mp4, webm…)" />
+        <button id="btn-load-url" class="btn btn-ghost btn-sm" data-i18n="video.loadUrl">Charger</button>
+      </div>
       <div class="video-wrap">
         <video id="video" playsinline></video>
+        <div id="yt-wrap" class="yt-wrap" hidden></div>
         <p id="video-placeholder" class="video-placeholder" data-i18n="video.placeholder">
-          Chargez une vidéo locale (danse, lutte, geste quotidien…). La portée défile en synchronisation avec la lecture.
+          Chargez une vidéo locale ou collez un lien (YouTube, mp4, webm…). La portée défile en synchronisation avec la lecture.
         </p>
       </div>
       <div class="transport">
@@ -140,7 +148,7 @@
   <footer class="app-footer">
     <p>
       <strong>EMBODIAI · LabanScore v1.0</strong> —
-      <span data-i18n="footer.ref">Système de notation d'après Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4ᵉ éd.). Sauvegarde automatique locale ; aucune donnée n'est transmise.</span>
+      <span data-i18n="footer.ref">Système de notation d'après Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4ᵉ éd.). Sauvegarde automatique locale ; aucune donnée n'est transmise, sauf lors de la lecture d'un lien externe (p. ex. YouTube).</span>
     </p>
   </footer>
 
@@ -161,7 +169,36 @@
         <p data-i18n="help.other">Tour à gauche/droite (parallélogramme), signe de tenue (o) pour conserver une position. Les versions futures ajouteront rotations chiffrées, épingles, chemins et signes de contact.</p>
       </div>
     </div>
+    <h3 data-i18n="help.biblioTitle">Bibliographie</h3>
+    <ul class="biblio">
+      <li>Hutchinson Guest, Ann. <em>Labanotation: The System of Analyzing and Recording Movement</em>. 4ᵉ éd., New York, Routledge, 2005.</li>
+      <li>Hutchinson Guest, Ann. <em>Your Move: The Language of Dance Approach to the Study of Movement and Dance</em>. 2ᵉ éd., Londres, Routledge, 2008.</li>
+      <li>Laban, Rudolf. <em>Schrifttanz: Methodik, Orthographie, Erläuterungen</em>. Vienne, Universal Edition, 1928.</li>
+      <li>Knust, Albrecht. <em>A Dictionary of Kinetography Laban (Labanotation)</em>. Plymouth, Macdonald &amp; Evans, 1979.</li>
+      <li>International Council of Kinetography Laban (ICKL) — <span class="biblio-url">ickl.org</span>.</li>
+      <li>Dance Notation Bureau, New York — <span class="biblio-url">dancenotation.org</span>.</li>
+    </ul>
     <p class="help-ref" data-i18n="help.ref">Référence complète : Ann Hutchinson Guest, <em>Labanotation</em>, 4ᵉ édition, Routledge.</p>
+  </dialog>
+
+  <dialog id="signs-dialog" class="help-dialog">
+    <button class="dialog-close" id="signs-close" aria-label="Fermer">✕</button>
+    <h2 data-i18n="signs.title">Bibliothèque des signes</h2>
+    <p class="hint" data-i18n="signs.intro">Les 27 signes de direction (9 directions × 3 niveaux) et les signes complémentaires. Cliquez un signe pour le choisir comme outil courant.</p>
+    <div id="signs-grid" class="signs-grid"></div>
+    <h3 data-i18n="signs.othersTitle">Tours et tenue</h3>
+    <div id="signs-extras" class="signs-grid"></div>
+  </dialog>
+
+  <dialog id="scores-dialog" class="help-dialog">
+    <button class="dialog-close" id="scores-close" aria-label="Fermer">✕</button>
+    <h2 data-i18n="scores.title">Mes portées</h2>
+    <p class="hint" data-i18n="scores.intro">Les portées sont enregistrées localement dans ce navigateur. Utilisez l'export JSON pour archiver ou partager un fichier.</p>
+    <div class="scores-form">
+      <input type="text" id="score-name" maxlength="60" data-i18n-ph="scores.namePh" placeholder="Nom de la portée…" />
+      <button id="btn-save-score" class="btn btn-primary btn-sm" data-i18n="scores.save">Enregistrer la portée</button>
+    </div>
+    <div id="scores-list" class="scores-list"></div>
   </dialog>
 
   <script src="js/app.js"></script>

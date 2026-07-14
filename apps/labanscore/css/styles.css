@@ -93,6 +93,16 @@ body {
 
 /* ---------- video panel ---------- */
 .video-panel { position: sticky; top: 64px; }
+.url-row { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+.url-row input[type="url"] {
+  flex: 1; min-width: 0;
+  background: var(--bg-panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.35rem 0.55rem; font: inherit; font-size: 0.82rem;
+}
+.url-row input[type="url"]:focus { outline: none; border-color: var(--accent); }
+.yt-wrap { width: 100%; aspect-ratio: 16 / 9; }
+.yt-wrap iframe { width: 100%; height: 100%; display: block; border: 0; }
 .video-wrap {
   position: relative; border-radius: 8px; overflow: hidden;
   background: #000; border: 1px solid var(--line-soft);
@@ -222,6 +232,42 @@ input[type="number"] { width: 4.6em; }
 .help-dialog p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.55; }
 .help-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; }
 .help-ref { border-top: 1px solid var(--line-soft); padding-top: 0.7rem; font-style: italic; }
+.biblio { color: var(--text-dim); font-size: 0.82rem; line-height: 1.5; padding-left: 1.1rem; }
+.biblio li { margin-bottom: 0.3rem; }
+.biblio-url { color: var(--accent-2); }
+
+.signs-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px; margin: 0.6rem 0 1rem;
+}
+.sign-card {
+  display: flex; align-items: center; gap: 0.55rem;
+  background: var(--bg-panel-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0.4rem 0.55rem; cursor: pointer; color: var(--text);
+  font: inherit; font-size: 0.76rem; text-align: left; line-height: 1.25;
+}
+.sign-card:hover { border-color: var(--accent); }
+.sign-card svg { flex: none; }
+.sign-card small { display: block; color: var(--text-dim); }
+
+.scores-form { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }
+.scores-form input[type="text"] {
+  flex: 1; min-width: 0;
+  background: var(--bg-panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.35rem 0.55rem; font: inherit; font-size: 0.85rem;
+}
+.scores-form input[type="text"]:focus { outline: none; border-color: var(--accent); }
+.scores-list { display: flex; flex-direction: column; gap: 6px; margin-top: 0.6rem; max-height: 42vh; overflow-y: auto; }
+.score-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--bg-panel-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+}
+.score-row strong { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-row .score-meta { color: var(--text-dim); font-size: 0.72rem; white-space: nowrap; }
+.scores-empty { color: var(--text-dim); font-size: 0.85rem; font-style: italic; }
+
 .dialog-close {
   position: absolute; top: 0.7rem; right: 0.8rem;
   background: none; border: none; color: var(--text-dim); font-size: 1rem; cursor: pointer;

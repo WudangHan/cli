@@ -31,7 +31,7 @@
       "set.tempo": "Tempo", "set.beats": "Temps/mesure", "set.zoom": "Zoom",
       "set.snap": "Aimanter aux temps", "set.follow": "Suivre la vidéo",
       "staff.hint": "Clic : écrire le signe courant · Glisser : déplacer · Poignée : durée · Clic droit : supprimer · Alt+clic : positionner la vidéo à ce temps. La portée se lit de bas en haut.",
-      "footer.ref": "Système de notation d'après Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4ᵉ éd.). Sauvegarde automatique locale ; aucune donnée n'est transmise.",
+      "footer.ref": "Système de notation d'après Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4ᵉ éd.). Sauvegarde automatique locale ; aucune donnée n'est transmise, sauf lors de la lecture d'un lien externe (p. ex. YouTube).",
       "help.title": "Lire et écrire la Labanotation",
       "help.staffTitle": "La portée",
       "help.staff": "La portée verticale représente le corps ; elle se lit de bas en haut. La ligne centrale sépare le côté gauche du côté droit. De part et d'autre du centre : appui (pas), geste de jambe, corps (torse), bras, tête. La double barre marque le début ; les barres de mesure suivent le tempo.",
@@ -55,6 +55,30 @@
       "score.credit": "Notation : Labanotation d'après Ann Hutchinson Guest — générée avec LabanScore (EMBODIAI)",
       "err.import": "Fichier JSON invalide.",
       "measure": "mes.",
+      "btn.signs": "Signes", "btn.scores": "Mes portées", "btn.print": "Imprimer",
+      "video.urlPh": "Coller un lien YouTube ou une URL vidéo (mp4, webm…)",
+      "video.loadUrl": "Charger",
+      "err.url": "Lien non reconnu ou vidéo indisponible.",
+      "err.popup": "Autorisez les fenêtres pop-up pour imprimer la portée.",
+      "signs.title": "Bibliothèque des signes",
+      "signs.intro": "Les 27 signes de direction (9 directions × 3 niveaux) et les signes complémentaires, d'après Hutchinson Guest. Cliquez un signe pour le choisir comme outil courant.",
+      "signs.othersTitle": "Tours et tenue",
+      "desc.turnL": "Pivot vers la gauche ; la longueur du signe donne la durée de la rotation.",
+      "desc.turnR": "Pivot vers la droite ; la longueur du signe donne la durée de la rotation.",
+      "desc.hold": "Signe de tenue : la position précédente est conservée.",
+      "help.biblioTitle": "Bibliographie",
+      "scores.title": "Mes portées",
+      "scores.intro": "Les portées sont enregistrées localement dans ce navigateur. Utilisez l'export JSON pour archiver ou partager un fichier.",
+      "scores.namePh": "Nom de la portée…",
+      "scores.save": "Enregistrer la portée",
+      "scores.load": "Charger", "scores.delete": "Supprimer",
+      "scores.empty": "Aucune portée enregistrée pour l'instant.",
+      "scores.signs": "signes",
+      "scores.overwrite": "Une portée porte déjà ce nom. La remplacer ?",
+      "scores.confirmLoad": "Remplacer la portée en cours par « {name} » ?",
+      "scores.confirmDelete": "Supprimer la portée « {name} » ?",
+      "scores.storageFull": "Stockage local plein : supprimez des portées ou exportez en JSON.",
+      "print.system": "Système",
     },
     en: {
       "app.tagline": "Live Labanotation score · scrolling video",
@@ -73,7 +97,7 @@
       "set.tempo": "Tempo", "set.beats": "Beats/bar", "set.zoom": "Zoom",
       "set.snap": "Snap to beats", "set.follow": "Follow video",
       "staff.hint": "Click: write current sign · Drag: move · Handle: duration · Right-click: delete · Alt+click: seek video to that time. The staff is read from bottom to top.",
-      "footer.ref": "Notation system after Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4th ed.). Local autosave; no data leaves your browser.",
+      "footer.ref": "Notation system after Ann Hutchinson Guest, <em>Labanotation: The System of Analyzing and Recording Movement</em> (4th ed.). Local autosave; no data leaves your browser except when playing an external link (e.g. YouTube).",
       "help.title": "Reading and writing Labanotation",
       "help.staffTitle": "The staff",
       "help.staff": "The vertical staff represents the body and is read from bottom to top. The centre line divides the left side from the right side. Outward from the centre: support (step), leg gesture, body (torso), arm, head. The double bar marks the start; bar lines follow the tempo.",
@@ -97,6 +121,30 @@
       "score.credit": "Notation: Labanotation after Ann Hutchinson Guest — generated with LabanScore (EMBODIAI)",
       "err.import": "Invalid JSON file.",
       "measure": "bar",
+      "btn.signs": "Signs", "btn.scores": "My scores", "btn.print": "Print",
+      "video.urlPh": "Paste a YouTube link or a video URL (mp4, webm…)",
+      "video.loadUrl": "Load",
+      "err.url": "Unrecognized link or unavailable video.",
+      "err.popup": "Allow pop-up windows to print the score.",
+      "signs.title": "Sign library",
+      "signs.intro": "The 27 direction signs (9 directions × 3 levels) and the complementary signs, after Hutchinson Guest. Click a sign to make it the current tool.",
+      "signs.othersTitle": "Turns and hold",
+      "desc.turnL": "Pivot to the left; the length of the sign gives the duration of the rotation.",
+      "desc.turnR": "Pivot to the right; the length of the sign gives the duration of the rotation.",
+      "desc.hold": "Hold sign: the previous position is retained.",
+      "help.biblioTitle": "Bibliography",
+      "scores.title": "My scores",
+      "scores.intro": "Scores are saved locally in this browser. Use the JSON export to archive or share a file.",
+      "scores.namePh": "Score name…",
+      "scores.save": "Save score",
+      "scores.load": "Load", "scores.delete": "Delete",
+      "scores.empty": "No saved score yet.",
+      "scores.signs": "signs",
+      "scores.overwrite": "A score with this name already exists. Replace it?",
+      "scores.confirmLoad": "Replace the current score with “{name}”?",
+      "scores.confirmDelete": "Delete the score “{name}”?",
+      "scores.storageFull": "Local storage is full: delete some scores or export to JSON.",
+      "print.system": "System",
     },
   };
   let lang = (new URLSearchParams(location.search).get("lang")) ||
@@ -130,7 +178,6 @@
   let selectedId = null;
   let idSeq = 1;
   let undoStack = [], redoStack = [];
-  let hasVideo = false;
   const liveRec = {};         // colId -> symbol currently being recorded
 
   /* ---------------- DOM ---------------- */
@@ -324,7 +371,7 @@
     const m = Math.floor(s / 60), sec = (s % 60).toFixed(2).padStart(5, "0");
     return `${String(m).padStart(2, "0")}:${sec}`;
   }
-  const now = () => (hasVideo ? video.currentTime : 0);
+  const now = () => player.time;
 
   /* ---------------- undo / redo ---------------- */
   function pushUndo() {
@@ -488,7 +535,7 @@
     const p = evtPos(e);
     const tv = tOf(p.y);
     if (e.altKey) {
-      if (hasVideo) { video.currentTime = clamp(tv, 0, score.duration); scrollToNow(true); }
+      if (player.ready) { player.seek(clamp(tv, 0, score.duration)); scrollToNow(true); }
       return;
     }
     const handleEl = e.target.closest("[data-handle]");
@@ -584,19 +631,138 @@
     syncInspector(); render();
   }
 
-  /* ---------------- video ---------------- */
-  const isPlaying = () => hasVideo && !video.paused && !video.ended;
+  /* ---------------- video / player abstraction ----------------
+     Two backends: the HTML5 <video> element (local file or direct media
+     URL) and the official YouTube IFrame API, loaded on demand only when
+     a YouTube link is used. */
+  const ytWrap = $("yt-wrap");
+  const player = {
+    kind: "none", // 'none' | 'html5' | 'yt'
+    yt: null,
+    ytState: -1,
+    get ready() { return this.kind !== "none"; },
+    get time() {
+      if (this.kind === "html5") return video.currentTime;
+      if (this.kind === "yt" && this.yt && this.yt.getCurrentTime) return this.yt.getCurrentTime() || 0;
+      return 0;
+    },
+    get paused() {
+      if (this.kind === "html5") return video.paused || video.ended;
+      if (this.kind === "yt") return this.ytState !== 1; // 1 = YT.PlayerState.PLAYING
+      return true;
+    },
+    play() {
+      if (this.kind === "html5") video.play();
+      else if (this.kind === "yt" && this.yt) this.yt.playVideo();
+    },
+    pause() {
+      if (this.kind === "html5") video.pause();
+      else if (this.kind === "yt" && this.yt) this.yt.pauseVideo();
+    },
+    seek(tv) {
+      if (this.kind === "html5") video.currentTime = tv;
+      else if (this.kind === "yt" && this.yt) this.yt.seekTo(tv, true);
+    },
+    setRate(r) {
+      if (this.kind === "html5") video.playbackRate = r;
+      else if (this.kind === "yt" && this.yt && this.yt.setPlaybackRate) this.yt.setPlaybackRate(r);
+    },
+    rawDuration() {
+      if (this.kind === "html5") return video.duration;
+      if (this.kind === "yt" && this.yt && this.yt.getDuration) return this.yt.getDuration();
+      return NaN;
+    },
+  };
+  const isPlaying = () => player.ready && !player.paused;
+
+  function destroyYt() {
+    if (player.yt) { try { player.yt.destroy(); } catch { /* already gone */ } player.yt = null; }
+    player.ytState = -1;
+    ytWrap.hidden = true;
+    ytWrap.innerHTML = "";
+  }
+  function useHtml5(src) {
+    destroyYt();
+    player.kind = "html5";
+    video.src = src;
+    video.classList.add("has-src");
+    $("video-placeholder").style.display = "none";
+  }
+  function useYouTube(id) {
+    destroyYt();
+    video.pause(); video.removeAttribute("src"); video.classList.remove("has-src");
+    player.kind = "yt";
+    $("video-placeholder").style.display = "none";
+    ytWrap.hidden = false;
+    ytWrap.innerHTML = '<div id="yt-player"></div>';
+    loadYtApi().then(() => {
+      player.yt = new window.YT.Player("yt-player", {
+        videoId: id,
+        playerVars: { playsinline: 1, rel: 0 },
+        events: {
+          onReady: () => { player.setRate(+$("rate").value); adoptVideoDuration(); },
+          onStateChange: (e) => {
+            player.ytState = e.data;
+            $("btn-play").textContent = e.data === 1 ? "❚❚" : "▶";
+            if (e.data === 1) followInput.checked = true;
+          },
+        },
+      });
+    }).catch(() => { destroyYt(); player.kind = "none"; alert(t("err.url")); });
+  }
+  let ytApiPromise = null;
+  function loadYtApi() {
+    if (window.YT && window.YT.Player) return Promise.resolve();
+    if (!ytApiPromise) {
+      ytApiPromise = new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://www.youtube.com/iframe_api";
+        s.onerror = () => { ytApiPromise = null; reject(new Error("yt-api")); };
+        window.onYouTubeIframeAPIReady = resolve;
+        document.head.appendChild(s);
+        setTimeout(() => reject(new Error("yt-api-timeout")), 10000);
+      });
+    }
+    return ytApiPromise;
+  }
+  // Recognize YouTube URLs; anything else http(s) is treated as a direct media URL.
+  function parseVideoUrl(raw) {
+    let u;
+    try { u = new URL(raw.trim()); } catch { return null; }
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    const host = u.hostname.replace(/^(www|m)\./, "");
+    let id = null;
+    if (host === "youtube.com" || host === "youtube-nocookie.com") {
+      if (u.pathname === "/watch") id = u.searchParams.get("v");
+      else {
+        const m = u.pathname.match(/^\/(?:embed|shorts|live|v)\/([A-Za-z0-9_-]{11})/);
+        if (m) id = m[1];
+      }
+    } else if (host === "youtu.be") {
+      id = u.pathname.slice(1).split("/")[0];
+    }
+    if (id && /^[A-Za-z0-9_-]{11}$/.test(id)) return { type: "yt", id };
+    if (id !== null) return null; // malformed YouTube link: don't fall through to <video>
+    return { type: "direct", src: u.href };
+  }
+  function loadFromUrl() {
+    const parsed = parseVideoUrl($("video-url").value);
+    if (!parsed) { alert(t("err.url")); return; }
+    if (parsed.type === "yt") useYouTube(parsed.id);
+    else useHtml5(parsed.src);
+  }
+  $("btn-load-url").addEventListener("click", loadFromUrl);
+  $("video-url").addEventListener("keydown", (e) => { if (e.key === "Enter") loadFromUrl(); });
+
   $("video-file").addEventListener("change", (e) => {
     const f = e.target.files[0];
     if (!f) return;
-    video.src = URL.createObjectURL(f);
-    video.classList.add("has-src");
-    $("video-placeholder").style.display = "none";
-    hasVideo = true;
+    useHtml5(URL.createObjectURL(f));
   });
   function adoptVideoDuration() {
-    if (isFinite(video.duration) && video.duration > 0) {
-      score.duration = Math.ceil(video.duration);
+    const d = player.rawDuration();
+    if (isFinite(d) && d > 0) {
+      score.duration = Math.ceil(d);
       $("manual-duration-wrap").style.display = "none";
     }
     render();
@@ -604,6 +770,9 @@
   }
   video.addEventListener("loadedmetadata", adoptVideoDuration);
   video.addEventListener("durationchange", adoptVideoDuration);
+  video.addEventListener("error", () => {
+    if (player.kind === "html5" && video.getAttribute("src")) alert(t("err.url"));
+  });
   $("manual-duration").addEventListener("change", (e) => {
     const v = clamp(+e.target.value || 60, 5, 3600);
     const maxEnd = score.symbols.reduce((m, s) => Math.max(m, s.start + s.dur), 0);
@@ -612,16 +781,16 @@
   });
   $("btn-play").addEventListener("click", togglePlay);
   function togglePlay() {
-    if (!hasVideo) return;
-    if (video.paused) { video.play(); followInput.checked = true; }
-    else video.pause();
+    if (!player.ready) return;
+    if (player.paused) { player.play(); followInput.checked = true; }
+    else player.pause();
   }
   video.addEventListener("play", () => { $("btn-play").textContent = "❚❚"; });
   video.addEventListener("pause", () => { $("btn-play").textContent = "▶"; });
   video.addEventListener("ended", () => { $("btn-play").textContent = "▶"; });
-  $("btn-step-back").addEventListener("click", () => { if (hasVideo) { video.pause(); video.currentTime = Math.max(0, video.currentTime - 1 / 30); scrollToNow(true); } });
-  $("btn-step-fwd").addEventListener("click", () => { if (hasVideo) { video.pause(); video.currentTime = Math.min(video.duration, video.currentTime + 1 / 30); scrollToNow(true); } });
-  $("rate").addEventListener("change", (e) => { video.playbackRate = +e.target.value; });
+  $("btn-step-back").addEventListener("click", () => { if (player.ready) { player.pause(); player.seek(Math.max(0, player.time - 1 / 30)); scrollToNow(true); } });
+  $("btn-step-fwd").addEventListener("click", () => { if (player.ready) { player.pause(); player.seek(Math.min(score.duration, player.time + 1 / 30)); scrollToNow(true); } });
+  $("rate").addEventListener("change", (e) => { player.setRate(+e.target.value); });
   video.addEventListener("click", togglePlay);
   video.addEventListener("seeked", () => scrollToNow(true));
 
@@ -633,8 +802,12 @@
   }
   viewport.addEventListener("wheel", () => { followInput.checked = false; }, { passive: true });
 
+  let lastTickT = 0;
   function tick() {
     const tv = now();
+    // seeks made from the embedded player's own controls (e.g. YouTube bar)
+    if (!isPlaying() && Math.abs(tv - lastTickT) > 0.5) scrollToNow(true);
+    lastTickT = tv;
     $("timecode").textContent = fmtTimecode(tv);
     nowBadge.textContent = `${tv.toFixed(2)} s · ${t("measure")} ${Math.floor(tv / barSec()) + 1}`;
     if (isPlaying()) {
@@ -692,7 +865,7 @@
         if (score.symbols.length && !confirm(t("confirm.import"))) return;
         pushUndo();
         // sanitize: finite times only, duration bounded like the manual control
-        if (+data.duration > 0 && !hasVideo) {
+        if (+data.duration > 0 && !player.ready) {
           score.duration = clamp(Math.ceil(+data.duration) || 60, 5, 3600);
           $("manual-duration").value = score.duration;
         }
@@ -756,6 +929,169 @@
     } catch { /* corrupted save — start fresh */ }
   }
 
+  /* ---------------- sign library ---------------- */
+  function buildSignsLibrary() {
+    const grid = $("signs-grid");
+    grid.innerHTML = "";
+    DIRS.forEach((d) => {
+      LEVELS.forEach((lv) => {
+        const b = document.createElement("button");
+        b.className = "sign-card";
+        b.innerHTML = miniIcon("dir", d, lv) +
+          `<span>${t("dir." + d)}<small>${t("level." + lv)}</small></span>`;
+        b.addEventListener("click", () => {
+          tool.kind = "dir"; tool.dir = d; tool.level = lv;
+          refreshPalette();
+          $("signs-dialog").close();
+        });
+        grid.appendChild(b);
+      });
+    });
+    const extras = $("signs-extras");
+    extras.innerHTML = "";
+    [["turnL", "turn", "left"], ["turnR", "turn", "right"], ["hold", "hold", null]].forEach(([key, kind, dirTurn]) => {
+      const b = document.createElement("button");
+      b.className = "sign-card";
+      b.innerHTML = miniIcon(kind, dirTurn, null) +
+        `<span>${t("extra." + key)}<small>${t("desc." + key)}</small></span>`;
+      b.addEventListener("click", () => {
+        tool.kind = kind;
+        if (kind === "turn") tool.turnDir = dirTurn;
+        refreshPalette();
+        $("signs-dialog").close();
+      });
+      extras.appendChild(b);
+    });
+  }
+  $("btn-signs").addEventListener("click", () => $("signs-dialog").showModal());
+  $("signs-close").addEventListener("click", () => $("signs-dialog").close());
+
+  /* ---------------- named scores (local library) ---------------- */
+  const SCORES_KEY = "labanscore.scores.v1";
+  function readScores() {
+    try { return JSON.parse(localStorage.getItem(SCORES_KEY)) || {}; } catch { return {}; }
+  }
+  function writeScores(all) {
+    try { localStorage.setItem(SCORES_KEY, JSON.stringify(all)); return true; }
+    catch { alert(t("scores.storageFull")); return false; }
+  }
+  function renderScoreList() {
+    const list = $("scores-list");
+    list.innerHTML = "";
+    const all = readScores();
+    const names = Object.keys(all).sort((a, b) =>
+      (all[b].savedAt || "").localeCompare(all[a].savedAt || ""));
+    if (!names.length) {
+      list.innerHTML = `<p class="scores-empty">${t("scores.empty")}</p>`;
+      return;
+    }
+    for (const name of names) {
+      const s = all[name];
+      const row = document.createElement("div");
+      row.className = "score-row";
+      const title = document.createElement("strong");
+      title.textContent = name;
+      const meta = document.createElement("span");
+      meta.className = "score-meta";
+      const when = s.savedAt ? new Date(s.savedAt).toLocaleString(lang === "fr" ? "fr-CA" : "en-US") : "";
+      meta.textContent = `${(s.symbols || []).length} ${t("scores.signs")} · ${when}`;
+      const loadBtn = document.createElement("button");
+      loadBtn.className = "btn btn-primary btn-sm";
+      loadBtn.textContent = t("scores.load");
+      loadBtn.addEventListener("click", () => loadNamedScore(name));
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-danger btn-sm";
+      delBtn.textContent = t("scores.delete");
+      delBtn.addEventListener("click", () => {
+        if (!confirm(t("scores.confirmDelete").replace("{name}", name))) return;
+        const cur = readScores();
+        delete cur[name];
+        writeScores(cur);
+        renderScoreList();
+      });
+      row.append(title, meta, loadBtn, delBtn);
+      list.appendChild(row);
+    }
+  }
+  function saveNamedScore() {
+    const name = $("score-name").value.trim();
+    if (!name) { $("score-name").focus(); return; }
+    const all = readScores();
+    if (all[name] && !confirm(t("scores.overwrite"))) return;
+    all[name] = {
+      savedAt: new Date().toISOString(),
+      duration: score.duration,
+      bpm: +bpmInput.value, beatsPerBar: +beatsInput.value,
+      symbols: score.symbols,
+    };
+    if (writeScores(all)) renderScoreList();
+  }
+  function loadNamedScore(name) {
+    const s = readScores()[name];
+    if (!s || !Array.isArray(s.symbols)) return;
+    if (score.symbols.length && !confirm(t("scores.confirmLoad").replace("{name}", name))) return;
+    pushUndo();
+    if (+s.duration > 0 && !player.ready) {
+      score.duration = clamp(Math.ceil(+s.duration), 5, 3600);
+      $("manual-duration").value = score.duration;
+    }
+    score.symbols = s.symbols
+      .filter((x) => x && isFinite(+x.start) && +x.start >= 0 && isFinite(+x.dur))
+      .map((x) => ({ ...x, id: idSeq++ }));
+    if (+s.bpm) bpmInput.value = clamp(+s.bpm, 20, 240);
+    if (+s.beatsPerBar) beatsInput.value = clamp(+s.beatsPerBar, 1, 12);
+    $("score-name").value = name;
+    selectedId = null; syncInspector(); render();
+    $("scores-dialog").close();
+  }
+  $("btn-scores").addEventListener("click", () => { renderScoreList(); $("scores-dialog").showModal(); });
+  $("scores-close").addEventListener("click", () => $("scores-dialog").close());
+  $("btn-save-score").addEventListener("click", saveNamedScore);
+  $("score-name").addEventListener("keydown", (e) => { if (e.key === "Enter") saveNamedScore(); });
+
+  /* ---------------- print ----------------
+     The tall score is sliced into page-height "systems", laid out in
+     reading order (each system reads bottom to top, systems flow left
+     to right, then down the page). */
+  function printScore() {
+    const screenPads = [PADTOP, PADBOT];
+    PADTOP = 64; PADBOT = 56;
+    const H = svgH();
+    const markup = staffMarkup(false);
+    [PADTOP, PADBOT] = screenPads;
+    const pageH = 920;
+    const nSys = Math.max(1, Math.ceil(H / pageH));
+    let systems = "";
+    for (let i = 0; i < nSys; i++) {
+      const y0 = Math.max(0, H - pageH * (i + 1));
+      systems += `<figure class="system"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${y0} ${svgW} ${Math.min(pageH, H)}">${markup}</svg>` +
+        (nSys > 1 ? `<figcaption>${t("print.system")} ${i + 1}/${nSys}</figcaption>` : "") + `</figure>`;
+    }
+    const w = window.open("", "_blank");
+    if (!w) { alert(t("err.popup")); return; }
+    const dateStr = new Date().toLocaleDateString(lang === "fr" ? "fr-CA" : "en-US");
+    w.document.write(`<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8">` +
+      `<title>${t("score.title")}</title><style>` +
+      `body{font-family:Georgia,serif;color:#17151a;background:#fff;margin:24px}` +
+      `h1{font-size:19px;font-weight:normal;margin:0 0 4px}` +
+      `.meta{font-size:11px;color:#6d6455;margin:0 0 14px}` +
+      `.sheet{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}` +
+      `.system{margin:0;width:46%;min-width:280px}` +
+      `.system svg{width:100%;height:auto;border:1px solid #e2ddd2}` +
+      `.system figcaption{font-size:10px;color:#6d6455;text-align:center;margin-top:2px}` +
+      `.credit{font-size:9px;color:#6d6455;margin-top:12px}` +
+      `@media print{.system svg{border:none}.system{break-inside:avoid}}` +
+      `</style></head><body>` +
+      `<h1>${t("score.title")}</h1>` +
+      `<p class="meta">${dateStr} · ${Math.round(score.duration)} s · ${+bpmInput.value} bpm · ${score.symbols.length} ${t("scores.signs")}</p>` +
+      `<div class="sheet">${systems}</div>` +
+      `<p class="credit">${t("score.credit")}</p>` +
+      `<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script>` +
+      `</body></html>`);
+    w.document.close();
+  }
+  $("btn-print").addEventListener("click", printScore);
+
   /* ---------------- keyboard ---------------- */
   document.addEventListener("keydown", (e) => {
     const tag = (e.target.tagName || "").toLowerCase();
@@ -773,6 +1109,9 @@
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       el.innerHTML = t(el.dataset.i18n);
     });
+    document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+      el.placeholder = t(el.dataset.i18nPh);
+    });
     $("lang-fr").classList.toggle("lang-active", lang === "fr");
     $("lang-en").classList.toggle("lang-active", lang === "en");
     localStorage.setItem("labanscore.lang", lang);
@@ -780,6 +1119,8 @@
     buildLiveStrip();
     refreshPalette();
     refreshInspectorLabels();
+    buildSignsLibrary();
+    renderScoreList();
   }
   $("lang-fr").addEventListener("click", () => { lang = "fr"; applyLang(); });
   $("lang-en").addEventListener("click", () => { lang = "en"; applyLang(); });
