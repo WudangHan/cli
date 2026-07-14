@@ -636,50 +636,118 @@
      URL) and the official YouTube IFrame API, loaded on demand only when
      a YouTube link is used. */
   const ytWrap = $("yt-wrap");
+  // The YouTube embed is driven directly over window.postMessage — the same
+  // channel the official IFrame API script uses — so no third-party script
+  // ever needs to be loaded. The embed streams `infoDelivery` packets
+  // (currentTime, playerState, duration, playbackRate) that we mirror here,
+  // extrapolating currentTime between packets for smooth staff scrolling.
+  const ytInfo = { t: 0, at: 0, rate: 1, state: -1, duration: NaN, ready: false };
+  let ytFrame = null, ytReadyTimer = null, ytMsgBound = false;
+
   const player = {
     kind: "none", // 'none' | 'html5' | 'yt'
-    yt: null,
-    ytState: -1,
     get ready() { return this.kind !== "none"; },
     get time() {
       if (this.kind === "html5") return video.currentTime;
-      if (this.kind === "yt" && this.yt && this.yt.getCurrentTime) return this.yt.getCurrentTime() || 0;
+      if (this.kind === "yt") {
+        if (ytInfo.state === 1) return ytInfo.t + ((performance.now() - ytInfo.at) / 1000) * ytInfo.rate;
+        return ytInfo.t;
+      }
       return 0;
     },
     get paused() {
       if (this.kind === "html5") return video.paused || video.ended;
-      if (this.kind === "yt") return this.ytState !== 1; // 1 = YT.PlayerState.PLAYING
+      if (this.kind === "yt") return ytInfo.state !== 1; // 1 = playing
       return true;
     },
     play() {
       if (this.kind === "html5") video.play();
-      else if (this.kind === "yt" && this.yt) this.yt.playVideo();
+      else if (this.kind === "yt") ytCommand("playVideo");
     },
     pause() {
       if (this.kind === "html5") video.pause();
-      else if (this.kind === "yt" && this.yt) this.yt.pauseVideo();
+      else if (this.kind === "yt") ytCommand("pauseVideo");
     },
     seek(tv) {
       if (this.kind === "html5") video.currentTime = tv;
-      else if (this.kind === "yt" && this.yt) this.yt.seekTo(tv, true);
+      else if (this.kind === "yt") {
+        ytCommand("seekTo", [tv, true]);
+        ytInfo.t = tv; ytInfo.at = performance.now();
+      }
     },
     setRate(r) {
       if (this.kind === "html5") video.playbackRate = r;
-      else if (this.kind === "yt" && this.yt && this.yt.setPlaybackRate) this.yt.setPlaybackRate(r);
+      else if (this.kind === "yt") { ytCommand("setPlaybackRate", [r]); ytInfo.rate = r; }
     },
     rawDuration() {
       if (this.kind === "html5") return video.duration;
-      if (this.kind === "yt" && this.yt && this.yt.getDuration) return this.yt.getDuration();
+      if (this.kind === "yt") return ytInfo.duration;
       return NaN;
     },
   };
   const isPlaying = () => player.ready && !player.paused;
 
+  function ytCommand(func, args) {
+    if (ytFrame && ytFrame.contentWindow) {
+      ytFrame.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func, args: args || [], id: 1, channel: "widget" }), "*");
+    }
+  }
+  function ytListen() {
+    if (ytFrame && ytFrame.contentWindow) {
+      ytFrame.contentWindow.postMessage(
+        JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*");
+    }
+  }
+  function updateYtState(s) {
+    if (s === ytInfo.state) return;
+    // leaving "playing": freeze the extrapolated clock at its current value
+    if (ytInfo.state === 1) ytInfo.t = player.time;
+    ytInfo.state = s;
+    ytInfo.at = performance.now();
+    $("btn-play").textContent = s === 1 ? "❚❚" : "▶";
+    if (s === 1) followInput.checked = true;
+  }
+  function bindYtMessages() {
+    if (ytMsgBound) return;
+    ytMsgBound = true;
+    window.addEventListener("message", (e) => {
+      if (!/^https:\/\/(www\.)?youtube(-nocookie)?\.com$/.test(e.origin)) return;
+      if (player.kind !== "yt") return;
+      let data;
+      try { data = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch { return; }
+      if (!data || typeof data !== "object") return;
+      if (data.event === "onReady") {
+        ytInfo.ready = true;
+        clearTimeout(ytReadyTimer);
+        ytListen();
+        player.setRate(+$("rate").value);
+      } else if (data.event === "onStateChange") {
+        updateYtState(+data.info);
+      } else if (data.event === "infoDelivery" && data.info) {
+        ytInfo.ready = true;
+        clearTimeout(ytReadyTimer);
+        if (typeof data.info.currentTime === "number") {
+          ytInfo.t = data.info.currentTime;
+          ytInfo.at = performance.now();
+        }
+        if (typeof data.info.playbackRate === "number") ytInfo.rate = data.info.playbackRate;
+        if (typeof data.info.playerState === "number") updateYtState(data.info.playerState);
+        if (typeof data.info.duration === "number" && data.info.duration > 0 &&
+            Math.abs(data.info.duration - (ytInfo.duration || 0)) > 0.5) {
+          ytInfo.duration = data.info.duration;
+          adoptVideoDuration();
+        }
+      }
+    });
+  }
   function destroyYt() {
-    if (player.yt) { try { player.yt.destroy(); } catch { /* already gone */ } player.yt = null; }
-    player.ytState = -1;
+    clearTimeout(ytReadyTimer);
+    ytFrame = null;
     ytWrap.hidden = true;
     ytWrap.innerHTML = "";
+    ytInfo.t = 0; ytInfo.at = 0; ytInfo.rate = 1;
+    ytInfo.state = -1; ytInfo.duration = NaN; ytInfo.ready = false;
   }
   function useHtml5(src) {
     destroyYt();
@@ -694,36 +762,28 @@
     player.kind = "yt";
     $("video-placeholder").style.display = "none";
     ytWrap.hidden = false;
-    ytWrap.innerHTML = '<div id="yt-player"></div>';
-    loadYtApi().then(() => {
-      player.yt = new window.YT.Player("yt-player", {
-        videoId: id,
-        playerVars: { playsinline: 1, rel: 0 },
-        events: {
-          onReady: () => { player.setRate(+$("rate").value); adoptVideoDuration(); },
-          onStateChange: (e) => {
-            player.ytState = e.data;
-            $("btn-play").textContent = e.data === 1 ? "❚❚" : "▶";
-            if (e.data === 1) followInput.checked = true;
-          },
-        },
-      });
-    }).catch(() => { destroyYt(); player.kind = "none"; alert(t("err.url")); });
-  }
-  let ytApiPromise = null;
-  function loadYtApi() {
-    if (window.YT && window.YT.Player) return Promise.resolve();
-    if (!ytApiPromise) {
-      ytApiPromise = new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://www.youtube.com/iframe_api";
-        s.onerror = () => { ytApiPromise = null; reject(new Error("yt-api")); };
-        window.onYouTubeIframeAPIReady = resolve;
-        document.head.appendChild(s);
-        setTimeout(() => reject(new Error("yt-api-timeout")), 10000);
-      });
-    }
-    return ytApiPromise;
+    bindYtMessages();
+    // the origin param is required for the postMessage API on http(s) pages
+    const origin = /^https?:$/.test(location.protocol)
+      ? `&origin=${encodeURIComponent(location.origin)}` : "";
+    ytFrame = document.createElement("iframe");
+    ytFrame.src = `https://www.youtube.com/embed/${id}?enablejsapi=1&playsinline=1&rel=0${origin}`;
+    ytFrame.allow = "autoplay; encrypted-media; picture-in-picture";
+    ytFrame.title = "YouTube";
+    ytFrame.addEventListener("load", () => {
+      ytListen();
+      setTimeout(ytListen, 400);
+      setTimeout(ytListen, 1500);
+    });
+    ytWrap.appendChild(ytFrame);
+    ytReadyTimer = setTimeout(() => {
+      if (!ytInfo.ready) {
+        destroyYt();
+        player.kind = "none";
+        $("video-placeholder").style.display = "";
+        alert(t("err.url"));
+      }
+    }, 12000);
   }
   // Recognize YouTube URLs; anything else http(s) is treated as a direct media URL.
   function parseVideoUrl(raw) {
