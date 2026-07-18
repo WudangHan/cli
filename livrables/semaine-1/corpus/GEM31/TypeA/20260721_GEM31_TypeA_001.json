@@ -1,0 +1,55 @@
+{
+  "version_gabarit": "S4.2-2026.1",
+  "identifiant": "20260721_GEM31_TypeA_001",
+  "STATUT": "À EXÉCUTER — pilote non encore généré (interface du modèle non accessible depuis l'environnement Semaine 1)",
+  "systeme": {
+    "code": "GEM31",
+    "modele_complet": "Gemini 3.1 Pro",
+    "fournisseur": "Google",
+    "version_figee": "gemini-3.1-pro",
+    "date_sortie_modele": "2026"
+  },
+  "type_production": {
+    "code": "A",
+    "libelle": "A (Monologue)"
+  },
+  "amorce": {
+    "identifiant_amorce": "AM-A-01",
+    "texte_integral": "Écris un monologue théâtral d'un seul personnage, sans nom, qui attend depuis longtemps le retour de quelqu'un qui ne reviendra peut-être jamais. Le personnage s'adresse à cette absence. Le texte doit tenir en une seule prise de parole continue, sans changement de scène. Ton tragique et introspectif. Longueur : environ 40 à 60 lignes.",
+    "reconduite_de_corpus_initial": true
+  },
+  "contexte_dramaturgique": {
+    "genre": "tragédie contemporaine",
+    "epoque": "indéterminée moderne",
+    "registre": "pathétique, introspectif",
+    "theme": "l'attente et la perte"
+  },
+  "parametres_appliques": {
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_tokens": 1500,
+    "frequency_penalty": 0.5,
+    "presence_penalty": 0.3,
+    "effort_raisonnement": null,
+    "configuration_canonique_respectee": null,
+    "ecart_au_standard_S4.2": "À CONSIGNER lors de l'exécution (cf. §6.2).",
+    "justification_ecart": ""
+  },
+  "generation": {
+    "date_heure_iso8601": "",
+    "longueur_jetons_generes": null,
+    "longueur_mots_approx": null,
+    "seed": null
+  },
+  "stockage": {
+    "fichier_txt": "20260721_GEM31_TypeA_001.txt",
+    "chemin_arborescence": "GEM31/TypeA/20260721",
+    "commit_git": ""
+  },
+  "notes_observationnelles": "",
+  "conformite_iso_42001": {
+    "tracabilite_parametres": false,
+    "inference_signalee": false
+  }
+}

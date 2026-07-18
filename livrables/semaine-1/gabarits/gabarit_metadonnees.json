@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "s4.2/gabarit_metadonnees.json",
+  "title": "Gabarit de métadonnées — Protocole S4.2 (signe zombie, nouvelle génération)",
+  "description": "Gabarit reconduit du §11 du plan de travail. Un fichier .json accompagne chaque production .txt. Renseigner tous les champs; laisser 'null' uniquement si l'information est structurellement indisponible et le signaler dans notes_observationnelles.",
+  "version_gabarit": "S4.2-2026.1",
+  "identifiant": "[DATE]_[SYSTEME]_[TYPE]_[NUMERO]",
+  "systeme": {
+    "code": "CO48 | CS5 | GEM31 | GLM52",
+    "modele_complet": "",
+    "fournisseur": "",
+    "version_figee": "",
+    "date_sortie_modele": ""
+  },
+  "type_production": {
+    "code": "A | B | C",
+    "libelle": "A (Monologue) | B (Dialogue) | C (Scène complète avec didascalies)"
+  },
+  "amorce": {
+    "identifiant_amorce": "AM-A-01 | AM-B-01 | AM-C-01",
+    "texte_integral": "",
+    "reconduite_de_corpus_initial": true
+  },
+  "contexte_dramaturgique": {
+    "genre": "",
+    "epoque": "",
+    "registre": "",
+    "theme": ""
+  },
+  "parametres_appliques": {
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_tokens": 1500,
+    "frequency_penalty": 0.5,
+    "presence_penalty": 0.3,
+    "effort_raisonnement": null,
+    "configuration_canonique_respectee": true,
+    "ecart_au_standard_S4.2": "",
+    "justification_ecart": ""
+  },
+  "generation": {
+    "date_heure_iso8601": "",
+    "longueur_jetons_generes": null,
+    "longueur_mots_approx": null,
+    "seed": null
+  },
+  "stockage": {
+    "fichier_txt": "",
+    "chemin_arborescence": "[Systeme]/[Type]/[Date]",
+    "commit_git": ""
+  },
+  "notes_observationnelles": "",
+  "conformite_iso_42001": {
+    "tracabilite_parametres": true,
+    "inference_signalee": false
+  }
+}

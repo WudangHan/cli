@@ -1,0 +1,54 @@
+{
+  "version_gabarit": "S4.2-2026.1",
+  "identifiant": "20260721_CO48_TypeA_001",
+  "systeme": {
+    "code": "CO48",
+    "modele_complet": "Claude Opus 4.8",
+    "fournisseur": "Anthropic",
+    "version_figee": "claude-opus-4-8",
+    "date_sortie_modele": "2026-05-28"
+  },
+  "type_production": {
+    "code": "A",
+    "libelle": "A (Monologue)"
+  },
+  "amorce": {
+    "identifiant_amorce": "AM-A-01",
+    "texte_integral": "Écris un monologue théâtral d'un seul personnage, sans nom, qui attend depuis longtemps le retour de quelqu'un qui ne reviendra peut-être jamais. Le personnage s'adresse à cette absence. Le texte doit tenir en une seule prise de parole continue, sans changement de scène. Ton tragique et introspectif. Longueur : environ 40 à 60 lignes.",
+    "reconduite_de_corpus_initial": true
+  },
+  "contexte_dramaturgique": {
+    "genre": "tragédie contemporaine",
+    "epoque": "indéterminée moderne",
+    "registre": "pathétique, introspectif",
+    "theme": "l'attente et la perte"
+  },
+  "parametres_appliques": {
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "max_tokens": 1500,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "effort_raisonnement": "standard",
+    "configuration_canonique_respectee": false,
+    "ecart_au_standard_S4.2": "Génération pilote produite via l'interface Claude Code (assistant), qui n'expose pas les contrôles d'échantillonnage (température, top-p, top-k, pénalités figés/non paramétrables).",
+    "justification_ecart": "Point de vigilance §6.2 : les modèles récents à raisonnement étendu bornent les contrôles d'échantillonnage. Écart consigné comme variable de contrôle, conformément à ISO 42001 (transparence et imputabilité)."
+  },
+  "generation": {
+    "date_heure_iso8601": "2026-07-18T00:00:00-04:00",
+    "longueur_jetons_generes": null,
+    "longueur_mots_approx": 470,
+    "seed": null
+  },
+  "stockage": {
+    "fichier_txt": "20260721_CO48_TypeA_001.txt",
+    "chemin_arborescence": "CO48/TypeA/20260721",
+    "commit_git": "à renseigner au commit"
+  },
+  "notes_observationnelles": "Pilote Semaine 1 destiné à valider le pipeline (amorce → génération → stockage → métadonnées → grille), non à alimenter le corpus final. Date d'identifiant (20260721) alignée sur le calendrier §7 (début de génération); date de génération réelle du pilote : 2026-07-18.",
+  "conformite_iso_42001": {
+    "tracabilite_parametres": true,
+    "inference_signalee": true
+  }
+}
